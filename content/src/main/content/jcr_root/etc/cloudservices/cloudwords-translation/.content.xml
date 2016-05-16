@@ -4,7 +4,7 @@
     <jcr:content
         cq:lastModified="{Date}2012-01-10T16:53:07.216+01:00"
         cq:lastModifiedBy="admin"
-        cq:template="/apps/bootstrap-connector/templates/bootstrap-connector-servicepage"
+        cq:template="/apps/cloudwords-connector/templates/cloudwords-connector-servicepage"
         jcr:description="Cloudwords translation connector"
         jcr:primaryType="cq:PageContent"
         jcr:title="Cloudwords Connector"
