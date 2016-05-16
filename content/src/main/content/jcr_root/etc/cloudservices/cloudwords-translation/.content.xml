@@ -14,8 +14,8 @@
         inclusionRank="{Long}202"
         ranking="10"
         allowMultiple="{Boolean}true"
-        serviceAdminUrl="http://www.adobe.com/bootstrap-connector/getting-started"
-        serviceUrl="http://www.adobe.com/bootstrap-connector/learn-more"
+        serviceAdminUrl="https://www.cloudwords.com/"
+        serviceUrl="https://www.cloudwords.com/"
         serviceUrlLabel="Cloudwords Connector"
         thumbnailPath="/apps/cloudwords-connector/templates/cloudwords-connector-servicepage/thumbnail.png"/>
 </jcr:root>
