@@ -17,5 +17,5 @@
         serviceAdminUrl="http://www.adobe.com/bootstrap-connector/getting-started"
         serviceUrl="http://www.adobe.com/bootstrap-connector/learn-more"
         serviceUrlLabel="Cloudwords Connector"
-        thumbnailPath="/apps/bootstrap-connector/templates/bootstrap-connector-servicepage/thumbnail.png"/>
+        thumbnailPath="/apps/cloudwords-connector/templates/cloudwords-connector-servicepage/thumbnail.png"/>
 </jcr:root>
