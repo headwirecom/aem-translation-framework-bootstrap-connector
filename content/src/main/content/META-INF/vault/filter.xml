@@ -6,4 +6,6 @@
     <filter root="/var/bootstrap-tms"/>
     <filter root="/apps/cloudwords-connector"/>
     <filter root="/etc/cloudservices/cloudwords-translation" mode="update"/>
+    <filter root="/home/users/system/cloudwords-service"/>    
+    <filter root="/var/cloudwords-tms"/>
 </workspaceFilter>
