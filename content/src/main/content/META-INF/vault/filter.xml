@@ -4,4 +4,5 @@
     <filter root="/etc/cloudservices/bootstrap-translation" mode="update"/>
     <filter root="/home/users/system/bootstrap-service"/>    
     <filter root="/var/bootstrap-tms"/>
+    <filter root="/etc/cloudservices/cloudwords-translation" mode="update"/>
 </workspaceFilter>
