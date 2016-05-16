@@ -1,45 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
-    jcr:primaryType="cq:Dialog"
-    xtype="dialog">
-    <items jcr:primaryType="cq:WidgetCollection">
-        <general
-            jcr:primaryType="nt:unstructured"
-            title="Bootstrap Translation Connector Settings"
-            xtype="panel">
-            <items jcr:primaryType="cq:WidgetCollection">
-                <tmsserverurl
-                        jcr:primaryType="cq:Widget"
-                        fieldLabel="Dummy Server URL"
-                        fieldDescription="Use the API/Endpoint URL here"
-                        name="./dummyserverurl"
-                        xtype="textfield">
+<jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+	xmlns:nt="http://www.jcp.org/jcr/nt/1.0" jcr:primaryType="cq:Dialog"
+	xtype="dialog">
+	<items jcr:primaryType="cq:WidgetCollection">
+		<general jcr:primaryType="nt:unstructured"
+			title="Cloudwords Connector Translator Settings" xtype="panel">
+			<items jcr:primaryType="cq:WidgetCollection">
+				<servicelabel jcr:primaryType="cq:Widget" fieldLabel="Translation Label"
+					name="./servicelabel" xtype="hidden" default="cloudwords"/>
+				<serviceattribution jcr:primaryType="cq:Widget"
+					fieldLabel="Translation Attribution" name="./serviceattribution"
+					xtype="hidden" default="cloudwords"/>
+				<endpoint jcr:primaryType="cq:Widget"
+					fieldLabel="End Point" name="./endpoint" allowBlank="false"
+					xtype="textfield">
+					<listeners jcr:primaryType="nt:unstructured"
+						change="function(comp) {CQ.cloudservices.getEditOk().enable();}" />
+				</endpoint>
+				<apikey jcr:primaryType="cq:Widget"
+					fieldLabel="API Key" name="./apiKey" allowBlank="false"
+					xtype="textfield">
+					<listeners jcr:primaryType="nt:unstructured"
+						change="function(comp) {CQ.cloudservices.getEditOk().enable();}" />
+				</apikey>
+				<apikeyHidden jcr:primaryType="cq:Widget"
+					fieldLabel="API Key" name="./apiKey@Encrypted" allowBlank="false"
+					xtype="hidden">
+				</apikeyHidden>
+				<bidDeadline
+                    jcr:primaryType="cq:Widget"
+                    fieldDescription="Default number of days to add to today indicating when bids are due from vendor. Must be 2 days or more in the future."
+                    fieldLabel="Default Bid Deadline"
+                    name="./bidDeadline"
+                    validator="function(value){ var intValue = parseInt(value); return intValue >= 2; }"
+                    xtype="hidden">
                     <listeners
-                            jcr:primaryType="nt:unstructured"
-                            change="function(comp) {CQ.cloudservices.getEditOk().enable();}"/>
-                </tmsserverurl>
-                <tmsconfigid
-                        jcr:primaryType="cq:Widget"
-                        fieldLabel="Dummy Service ID"
-                        fieldDescription="Use a customer specific Configuration/Service ID here"
-                        name="./dummyconfigid"
-                        xtype="textfield">
-                    <listeners
-                            jcr:primaryType="nt:unstructured"
-                            change="function(comp) {CQ.cloudservices.getEditOk().enable();}"/>
-                </tmsconfigid>
-                <tmsconfigid_encrypted
                         jcr:primaryType="nt:unstructured"
-                        disabled="false"
-                        hideLabel="false"
-                        name="./dummyconfigid@Encrypted"
-                        readOnly="false"
-                        xtype="hidden"/>
-            <serviceattribution jcr:primaryType="cq:Widget" fieldLabel="Target Directory for Preview content:" name="./previewPath" xtype="textfield" fieldDescription="Make sure to enable preview in the Web console for the Bootstrap Translation Factory">
-                  <listeners jcr:primaryType="nt:unstructured" change="function(comp) {CQ.cloudservices.getEditOk().enable();}"/>
-            </serviceattribution>
-                        
-            </items>
-        </general>
-    </items>
+                        change="function(comp) {CQ.cloudservices.getEditOk().enable();}"/>
+                </bidDeadline>
+				<initialTranslationDeadline jcr:primaryType="cq:Widget"
+					fieldLabel="Default Initial Translation Deadline" 
+					name="./initialTranslationDeadline"
+					validator="function(value){ var bidDeadline = this.findParentByType(&quot;dialog&quot;).find(&quot;name&quot;,&quot;./bidDeadline&quot;)[0].getValue(); bidDeadline = parseInt(bidDeadline); if(!bidDeadline) bidDeadline = 0; var intValue = parseInt(value); return intValue - bidDeadline >= 2; }"
+					fieldDescription="Default number of days to add to today indicating when work should be done. Must be 2 days or more after the bid deadline"
+					xtype="hidden">
+					<listeners jcr:primaryType="nt:unstructured"
+						change="function(comp) {CQ.cloudservices.getEditOk().enable();}" />
+				</initialTranslationDeadline>
+				<projectDescription jcr:primaryType="cq:Widget"
+					fieldLabel="Default Project Description" name="./projectDescription"
+					xtype="textfield">
+					<listeners jcr:primaryType="nt:unstructured"
+						change="function(comp) {CQ.cloudservices.getEditOk().enable();}" />
+				</projectDescription >
+			</items>
+		</general>
+	</items>
 </jcr:root>

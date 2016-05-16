@@ -30,18 +30,24 @@
     String resPath = resource.getPath().replace("/jcr:content", "");
 %>
 <div>
-    <h3><%= i18n.get("Bootstrap Translation Connector Settings") %></h3>
+    <h3><%= i18n.get("Cloudwords Connector Translator Settings") %></h3>
     <img src="<%= xssAPI.encodeForHTMLAttr(thumbnailPath) %>" alt="<%= xssAPI.encodeForHTMLAttr(serviceName) %>" style="float: left;" />
     <ul style="float: left; margin: 0px;">
         <li><div class="li-bullet"><strong><%=
-        i18n.get("To get a free trial account visit www.adobe.com/bootstrap.html") %>
+        i18n.get("To get a free trial account or to sign up, please click <a href='https://developer.cloudwords.com/'>developer.cloudwords.com</a>.") %>
         </strong></div></li>
-        <li><div class="li-bullet"><strong><%= i18n.get("Demo Server URL") %>: </strong><%=
-        xssAPI.encodeForHTML(properties.get("dummyserverurl", "")) %></div></li>
-        <li><div class="li-bullet"><strong><%= i18n.get("Demo Configuration ID") %>: </strong><%=
-        xssAPI.encodeForHTML(properties.get("dummyconfigid", "").replaceAll(".", "*")) %></div></li>
+        <li><div class="li-bullet"><strong><%= i18n.get("End Point") %>: </strong><%=
+        xssAPI.encodeForHTML(properties.get("endpoint", "")) %></div></li>
+        <li><div class="li-bullet"><strong><%= i18n.get("API Key") %>: </strong><%=
+        xssAPI.encodeForHTML(properties.get("apiKey", "").replaceAll(".", "*")) %></div></li>
+        <li><div class="li-bullet"><strong><%= i18n.get("Project Description") %>: </strong><%=
+        xssAPI.encodeForHTML(properties.get("projectDescription", "")) %></div></li>
+        <%--<li><div class="li-bullet"><strong><%= i18n.get("Default Bid Deadline") %>: </strong><%=
+        xssAPI.encodeForHTML(properties.get("bidDeadline", "")) %></div></li>
+        <li><div class="li-bullet"><strong><%= i18n.get("Default Initial Translation Deadline") %>: </strong><%=
+        xssAPI.encodeForHTML(properties.get("initialTranslationDeadline", "")) %></div></li>  --%>
         <li class="config-successful-message when-config-successful" style="display: none">
             <%=
-            i18n.get("Bootstrap Translator Connector configuration is successful.") %></li>
+            i18n.get("Cloudwords Connector Translator connector configuration is successful.") %></li>
     </ul>
 </div>

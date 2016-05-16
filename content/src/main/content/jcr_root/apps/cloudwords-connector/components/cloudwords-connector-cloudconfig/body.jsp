@@ -1,22 +1,3 @@
-<%--
-/*************************************************************************
- *
- * ADOBE CONFIDENTIAL
- * __________________
- *
- *  Copyright 2014 Adobe Systems Incorporated
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Adobe Systems Incorporated and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Adobe Systems Incorporated and its
- * suppliers and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Adobe Systems Incorporated.
- **************************************************************************/
---%>
 <%@page contentType="text/html"
         session="false"
         pageEncoding="utf-8"
@@ -38,8 +19,7 @@
 %><body>
 <div><cq:include path="trail" resourceType="cq/cloudserviceconfigs/components/trail"/></div>
 <p class="cq-clear-for-ie7"></p>
-<h1 style="padding-top: 15px;"><%= title %></h1>
-
+<h1><%= title %></h1>
 <p><%= description %></p>
 <div>
     <script type="text/javascript">
@@ -69,7 +49,8 @@
                     },
                     {
                         "xtype": "tbtext",
-                        "text": "<a href='<%=serviceUrl%>' target='_blank' style='color: #15428B; cursor: pointer; text-decoration: underline'>" + CQ.I18n.getMessage("Getting started") + "</span>"
+                        "text":
+                                "<a href='http://adobe.ly/1H3XLOr' target='_blank' style='color: #15428B; cursor: pointer; text-decoration: underline'>Getting Started</span>"
                     }
                     <%
                     }
@@ -80,12 +61,5 @@
     </script>
 </div>
 <cq:include script="content.jsp" />
-    <%
-        if (properties.get("dummyserverurl", "").isEmpty()
-                || properties.get("dummyconfigid", "").isEmpty()) {
-    %>
-    <cq:include script="opendialog.jsp" />
-    <%
-        }
-    %>
+<p>&nbsp;</p>
 </body>
