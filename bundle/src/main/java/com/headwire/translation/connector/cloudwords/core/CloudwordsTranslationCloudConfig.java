@@ -12,7 +12,8 @@ public interface CloudwordsTranslationCloudConfig {
     public static final String PROPERTY_TRANSLATION_INITIAL_TRANSLATION_DEADLINE= "initialTranslationDeadline";
     public static final String PROPERTY_TRANSLATION_PROJECT_DESCRIPTION= "projectDescription";
 
-    public static final String RESOURCE_TYPE = "cq/translation/components/cloudwords/cloudwords-cloudconfig";
+    public static final String RESOURCE_TYPE = "cloudwords-connector/components/cloudwords-connector-cloudconfig";
+    
 
     String getServiceAttribution();
 
