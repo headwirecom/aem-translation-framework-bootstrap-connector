@@ -1,4 +1,4 @@
-package com.adobe.granite.xliff.util;
+package com.headwire.xliff.util;
 
 import java.io.File;
 import java.io.IOException;

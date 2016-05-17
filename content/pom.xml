@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- |  Copyright 2015 Adobe Systems Incorporated
+ |  Copyright 2014 Adobe Systems Incorporated
  |
  |  Licensed under the Apache License, Version 2.0 (the "License");
  |  you may not use this file except in compliance with the License.
@@ -13,27 +13,26 @@
  |  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  |  See the License for the specific language governing permissions and
  |  limitations under the License.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+--><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- ====================================================================== -->
     <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
     <!-- ====================================================================== -->
     <parent>
-        <groupId>com.adobe.granite.translation.connector</groupId>
-        <artifactId>bootstrap-connector</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.headwire.cloudwords</groupId>
+        <artifactId>cloudwordsapi</artifactId>
+        <version>1.0.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
-    <artifactId>bootstrap-connector.content</artifactId>
+    <artifactId>cloudwordsapi.ui.content</artifactId>
     <packaging>content-package</packaging>
-    <name>Bootstrap Translation Connector - Content</name>
-    <description>Bootstrap connector implementation for the Granite Translation API. This connector provides a reference implementation of the API. Please visit www.adobe.com for more details.</description>
+    <name>cloudwords - Content</name>
+    <description>UI content package for cloudwords</description>
 
     <!-- <scm>
         <connection></connection>
@@ -116,22 +115,21 @@
                 <extensions>true</extensions>
                 <configuration>
                     <filterSource>${basedir}/META-INF/vault/filter.xml</filterSource>
-                    <verbose>true</verbose>
-                    <failOnError>true</failOnError>
-                    <group>com.adobe.granite.translation.connector</group>
-                    <name>AEM Bootstrap Translation Connector</name>
+					<verbose>true</verbose>
+					<failOnError>true</failOnError>
+                    <group>cloudwords Content Package</group>
                     <embeddeds>
                         <embedded>
-                            <groupId>com.adobe.granite.translation.connector</groupId>
-                            <artifactId>bootstrap-connector.bundle</artifactId>
-                            <target>/apps/bootstrap-connector/install</target>
+                            <groupId>com.headwire.cloudwords</groupId>
+                            <artifactId>cloudwordsapi.core</artifactId>
+                            <target>/apps/cloudwords/install</target>
                         </embedded>
                     </embeddeds>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
+    
     <!-- ====================================================================== -->
     <!-- P R O F I L E S                                                        -->
     <!-- ====================================================================== -->
@@ -139,11 +137,10 @@
         <profile>
             <id>autoInstallPackage</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
-                    <plugin>
+	                <plugin>
                         <groupId>com.day.jcr.vault</groupId>
                         <artifactId>content-package-maven-plugin</artifactId>
                         <executions>
@@ -158,6 +155,13 @@
                             <targetURL>http://${aem.host}:${aem.port}/crx/packmgr/service.jsp</targetURL>
                             <failOnError>true</failOnError>
                             <failOnMissingEmbed>true</failOnMissingEmbed>
+                    <embeddeds>
+                        <embedded>
+                            <groupId>com.headwire.cloudwords</groupId>
+                            <artifactId>cloudwordsapi.core</artifactId>
+                            <target>/apps/cloudwords-connector/install</target>
+                        </embedded>
+                    </embeddeds>
                         </configuration>
                      </plugin>
                  </plugins>
@@ -166,11 +170,10 @@
         <profile>
             <id>autoInstallPackagePublish</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
-                    <plugin>
+	                <plugin>
                         <groupId>com.day.jcr.vault</groupId>
                         <artifactId>content-package-maven-plugin</artifactId>
                         <executions>
@@ -196,31 +199,16 @@
     <!-- D E P E N D E N C I E S                                                -->
     <!-- ====================================================================== -->
     <dependencies>
-        <dependency>
-            <groupId>com.adobe.granite.translation.connector</groupId>
-            <artifactId>bootstrap-connector.bundle</artifactId>
-            <version>1.0-SNAPSHOT</version>
+		<dependency>
+            <groupId>com.headwire.cloudwords</groupId>
+            <artifactId>cloudwordsapi.core</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.adobe.aem</groupId>
-            <artifactId>uber-jar</artifactId>
-            <classifier>obfuscated-apis</classifier>
+            <artifactId>aem-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>javax.jcr</groupId>
-            <artifactId>jcr</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.day.cq.wcm</groupId>
-            <artifactId>cq-wcm-taglib</artifactId>
-        </dependency>
     </dependencies>
 </project>

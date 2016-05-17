@@ -1,4 +1,4 @@
-package com.adobe.granite.xliff.util;
+package com.headwire.xliff.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
