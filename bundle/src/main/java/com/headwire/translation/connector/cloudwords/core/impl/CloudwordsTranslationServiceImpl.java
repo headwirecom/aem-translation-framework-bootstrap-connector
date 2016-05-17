@@ -646,8 +646,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         TranslationObject[] translationObjects) throws TranslationException {
         List<TranslationStatus> statusList = new ArrayList<TranslationStatus>();
     	for(TranslationObject object : translationObjects){
-    		log.error("status: " + getTranslationObjectStatus(strTranslationJobID, object));
-    		log.error("object type: " +getTranslationObjectStatus(strTranslationJobID, object).getClass().getName());
+    		//log.error("status: " + getTranslationObjectStatus(strTranslationJobID, object));
+    		//log.error("object type: " +getTranslationObjectStatus(strTranslationJobID, object).getClass().getName());
     		statusList.add(getTranslationObjectStatus(strTranslationJobID, object));
     	}
         return statusList.toArray(new TranslationStatus[statusList.size()]);
