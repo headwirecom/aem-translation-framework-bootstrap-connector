@@ -262,7 +262,7 @@
             <version>1.0.0-SNAPSHOT</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../content/src/main/content/jcr_root/apps/cloudwords-connector/install/bootstrap-tms.bundle-1.0.0-SNAPSHOT.jar</systemPath>
-        </dependency>		
+        </dependency>	
 		
 		<!-- import of cloudwords api -->
 		<dependency>

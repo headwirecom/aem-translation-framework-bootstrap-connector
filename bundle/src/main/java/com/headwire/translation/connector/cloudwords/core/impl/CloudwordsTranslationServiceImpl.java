@@ -87,7 +87,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
 			Map<String, String> availableCategoryMap, String name,
-			String label, String attribution, String previewPath,
+			String label, String attribution, String previewPath, Boolean isPreviewEnabled, String exportFormat,
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
@@ -117,6 +117,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         this.previewPath = previewPath;
         //this.bootstrapTmsService = bootstrapTmsService;
         this.isPreviewEnabled = isPreviewEnabled;
+        this.exportFormat = exportFormat;
     }
 
     @Override
