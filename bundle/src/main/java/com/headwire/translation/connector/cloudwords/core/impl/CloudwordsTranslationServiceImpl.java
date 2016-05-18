@@ -37,7 +37,7 @@ import com.adobe.granite.translation.api.TranslationResult;
 import com.adobe.granite.translation.api.TranslationScope;
 import com.adobe.granite.translation.api.TranslationService;
 import com.adobe.granite.translation.api.TranslationState;
-import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
+//import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 import com.adobe.granite.translation.core.common.AbstractTranslationService;
 import com.adobe.granite.translation.core.common.TranslationResultImpl;
 
@@ -82,7 +82,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private Boolean isPreviewEnabled = false;
     
-    private BootstrapTmsService bootstrapTmsService;
+    //private BootstrapTmsService bootstrapTmsService;
     
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
@@ -91,8 +91,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
-			CloudwordsTranslationCacheImpl cache,
-			BootstrapTmsService bootstrapTmsService
+			CloudwordsTranslationCacheImpl cache
+			//BootstrapTmsService bootstrapTmsService
 			) {
 		super(availableLanguageMap, 
 				availableCategoryMap, 
@@ -115,8 +115,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         cloudwordsTranslationCloudConfig = cwtc;
         translationCache = cache;
         this.previewPath = previewPath;
-        this.bootstrapTmsService = bootstrapTmsService;
-        this.isPreviewEnabled = isPreviewEnabled;
+        //this.bootstrapTmsService = bootstrapTmsService;
+        this.isPreviewEnabled = true;
     }
 
     @Override
@@ -467,6 +467,22 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	InputStream is = translationObject.getTranslationObjectInputStream();
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
+    	
+    	// Generate Preview
+    	if(true) {
+    		try {
+    			ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
+    			if (zipInputStream != null) {
+    				unzipFileFromStream(zipInputStream, previewPath);
+    			} else {
+    				log.error("Got null for zipInputStream for " + getObjectPath(translationObject));
+    			}
+    		} catch (FileNotFoundException e) {
+    			log.error(e.getLocalizedMessage(), e);
+    		} catch (IOException e) {
+    			log.error(e.getLocalizedMessage(), e);
+    		}			
+    	}
     	    	
     	// Handle binary asset
     	try {
@@ -527,27 +543,12 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    	FileUtil.deleteTempFile(xliffFile);
     	}
     	
-    	String objectPath = bootstrapTmsService.uploadBootstrapTmsObject(strTranslationJobID, getObjectPath(translationObject), is, translationObject.getMimeType(), exportFormat);
+    	//String objectPath = bootstrapTmsService.uploadBootstrapTmsObject(strTranslationJobID, getObjectPath(translationObject), is, translationObject.getMimeType(), exportFormat);
 
-		// Generate Preview
-		if(isPreviewEnabled) {
-			try {
-				ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
-				if (zipInputStream != null) {
-					unzipFileFromStream(zipInputStream, previewPath);
-				} else {
-					log.error("Got null for zipInputStream for " + getObjectPath(translationObject));
-				}
-			} catch (FileNotFoundException e) {
-				log.error(e.getLocalizedMessage(), e);
-			} catch (IOException e) {
-				log.error(e.getLocalizedMessage(), e);
-			}			
-		}
-		log.trace("Preview Directory is: {}", previewPath);
-
-		return objectPath;
-		//return null;
+		
+		
+		//return objectPath;
+		return null;
     }
     
     private String getObjectPath (TranslationObject translationObject){

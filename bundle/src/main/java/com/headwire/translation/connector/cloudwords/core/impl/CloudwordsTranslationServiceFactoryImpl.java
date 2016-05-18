@@ -20,7 +20,7 @@ import com.adobe.granite.translation.api.TranslationService;
 import com.adobe.granite.translation.api.TranslationServiceFactory;
 import com.adobe.granite.translation.core.TranslationCloudConfigUtil;
 import com.adobe.granite.translation.core.common.AbstractTranslationServiceFactory;
-import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
+//import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 
@@ -49,8 +49,8 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     @Reference
     CloudwordsTranslationCacheImpl cloudwordsTranslationCache;
 
-    @Reference
-    BootstrapTmsService bootstrapTmsService;
+    //@Reference
+    //BootstrapTmsService bootstrapTmsService;
     
     private List<TranslationMethod> supportedTranslationMethods;
 
@@ -82,7 +82,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
             previewPath = cloudwordsCloudConfg.getPreviewPath();
             cloudwordsCloudConfg.decryptSecret(cryptoSupport);
         }
-        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache, bootstrapTmsService);
+        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache);
     }
 
     @Override

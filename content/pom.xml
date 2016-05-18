@@ -155,13 +155,13 @@
                             <targetURL>http://${aem.host}:${aem.port}/crx/packmgr/service.jsp</targetURL>
                             <failOnError>true</failOnError>
                             <failOnMissingEmbed>true</failOnMissingEmbed>
-                    <embeddeds>
-                        <embedded>
-                            <groupId>com.headwire.cloudwords</groupId>
-                            <artifactId>cloudwordsapi.core</artifactId>
-                            <target>/apps/cloudwords-connector/install</target>
-                        </embedded>
-                    </embeddeds>
+                    		<embeddeds>
+                        		<embedded>
+                            		<groupId>com.headwire.cloudwords</groupId>
+                            		<artifactId>cloudwordsapi.core</artifactId>
+                            		<target>/apps/cloudwords-connector/install</target>
+                        		</embedded>
+                    		</embeddeds>
                         </configuration>
                      </plugin>
                  </plugins>
