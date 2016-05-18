@@ -70,12 +70,15 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         
         String strServiceLabel = "";
         String strServiceAttribute = "";
+        String previewPath = "";
+        
         if (cloudwordsCloudConfg != null) {
             strServiceLabel = cloudwordsCloudConfg.getServiceLabel();
             strServiceAttribute = cloudwordsCloudConfg.getServiceAttribution();
+            previewPath = cloudwordsCloudConfg.getPreviewPath();
             cloudwordsCloudConfg.decryptSecret(cryptoSupport);
         }
-        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache);
+        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache);
     }
 
     @Override

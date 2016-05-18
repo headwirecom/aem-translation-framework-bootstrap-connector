@@ -1,6 +1,7 @@
 package com.headwire.translation.connector.cloudwords.core.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +37,10 @@ import com.adobe.granite.translation.api.TranslationResult;
 import com.adobe.granite.translation.api.TranslationScope;
 import com.adobe.granite.translation.api.TranslationService;
 import com.adobe.granite.translation.api.TranslationState;
+//import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 import com.adobe.granite.translation.core.common.AbstractTranslationService;
 import com.adobe.granite.translation.core.common.TranslationResultImpl;
+
 import com.cloudwords.api.client.CloudwordsCustomerClient;
 import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.CloudwordsFile;
@@ -65,10 +70,20 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private static final String PROJECT_ID_PREFIX = "CW_";
     
+    private static final String TAG_METADATA = "/tag-metadata";
+    
+    private static final String ASSET_METADATA = "/asset-metadata";
+
+    private static final String I18NCOMPONENTSTRINGDICT = "/i18n-dictionary";
+    
+    private String previewPath = "";
+    
+    private Boolean isPreviewEnabled = false;
+    
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
 			Map<String, String> availableCategoryMap, String name,
-			String label, String attribution,
+			String label, String attribution, String previewPath,
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
@@ -504,8 +519,45 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    	FileUtil.deleteTempFile(xliffFile);
     	}
     	
-    	return null;
+    	//String objectPath = bootstrapTmsService.uploadBootstrapTmsObject(strTranslationJobID, getObjectPath(translationObject), is, translationObject.getMimeType(), exportFormat);
+
+		// Generate Preview
+		if(isPreviewEnabled) {
+			try {
+				ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
+				if (zipInputStream != null) {
+					unzipFileFromStream(zipInputStream, previewPath);
+				} else {
+					log.error("Got null for zipInputStream for " + getObjectPath(translationObject));
+				}
+			} catch (FileNotFoundException e) {
+				log.error(e.getLocalizedMessage(), e);
+			} catch (IOException e) {
+				log.error(e.getLocalizedMessage(), e);
+			}			
+		}
+		log.trace("Preview Directory is: {}", previewPath);
+
+		//return objectPath;
+		return null;
     }
+    
+    private String getObjectPath (TranslationObject translationObject){
+        
+        if(translationObject.getTranslationObjectSourcePath()!= null && !translationObject.getTranslationObjectSourcePath().isEmpty()){
+            return  translationObject.getTranslationObjectSourcePath();
+        }
+        else if(translationObject.getTitle().equals("TAGMETADATA")){
+            return TAG_METADATA;
+        }
+        else if(translationObject.getTitle().equals("ASSETMETADATA")){
+            return ASSET_METADATA;
+        } 
+        else if(translationObject.getTitle().equals("I18NCOMPONENTSTRINGDICT")){
+            return I18NCOMPONENTSTRINGDICT;
+        }
+        return null;
+    }    
     
     private InputStream getInputStream(InputStream inputStream, String pattern, String replacement) {
     	return SearchAndReplaceInputStreamUtil.searchAndReplace(inputStream, pattern, replacement);
@@ -840,6 +892,47 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		} else{
 			return true;
 		}
+	}
+	
+	private static void unzipFileFromStream(ZipInputStream zipInputStream, String targetPath) throws IOException {
+		File dirFile = new File(targetPath + File.separator);
+		if (!dirFile.exists()) {
+			dirFile.mkdirs();
+			log.trace("Created directory: {}",dirFile);
+		}
+
+		ZipEntry zipEntry = null;
+		while (null != (zipEntry = zipInputStream.getNextEntry())) {
+			String zipFileName = zipEntry.getName();
+			if (zipEntry.isDirectory()) {
+				File zipFolder = new File(targetPath + File.separator + zipFileName);
+				if (!zipFolder.exists()) {
+					zipFolder.mkdirs();
+					log.trace("Created directory: {}",zipFolder);
+				}
+			} else {
+				File file = new File(targetPath + File.separator + zipFileName);
+
+				File parent = file.getParentFile();
+				if (!parent.exists()) {
+					parent.mkdirs();
+				}
+
+				FileOutputStream fos = null;
+				try {
+					fos = new FileOutputStream(file);
+				} catch (FileNotFoundException e) {
+					log.error(e.getLocalizedMessage(),e);
+				}
+				int readLen = 0;
+				byte buffer[] = new byte[1024];
+				while (-1 != (readLen = zipInputStream.read(buffer))) {
+					fos.write(buffer, 0, readLen);
+				}
+				fos.close();
+			}
+		}
+		zipInputStream.close();
 	}
 	
     

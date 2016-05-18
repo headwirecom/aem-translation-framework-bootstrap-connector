@@ -11,6 +11,7 @@ public interface CloudwordsTranslationCloudConfig {
     public static final String PROPERTY_TRANSLATION_BID_DEADLINE= "bidDeadline";
     public static final String PROPERTY_TRANSLATION_INITIAL_TRANSLATION_DEADLINE= "initialTranslationDeadline";
     public static final String PROPERTY_TRANSLATION_PROJECT_DESCRIPTION= "projectDescription";
+    public static final String PROPERTY_TRANSLATION_PREVIEW_PATH = "previewPath";
 
     public static final String RESOURCE_TYPE = "cloudwords-connector/components/cloudwords-connector-cloudconfig";
     
@@ -28,6 +29,8 @@ public interface CloudwordsTranslationCloudConfig {
     String getDefaultInitialTranslationDeadline();
 
     String getDefaultProjectDescription();
+    
+    String getPreviewPath();
     
     void decryptSecret(CryptoSupport helper);
 	

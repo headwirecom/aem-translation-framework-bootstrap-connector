@@ -22,6 +22,7 @@ public class CloudwordsTranslationCloudConfigImpl implements CloudwordsTranslati
 	private String bidDeadline;
 	private String bidinitialTranslationDeadline;
 	private String projectDescription;
+	private String previewPath;
 
 
     public CloudwordsTranslationCloudConfigImpl(Resource translationConfigResource) throws TranslationException {
@@ -43,11 +44,13 @@ public class CloudwordsTranslationCloudConfigImpl implements CloudwordsTranslati
             this.bidDeadline = properties.get(PROPERTY_TRANSLATION_BID_DEADLINE, "7");
             this.bidinitialTranslationDeadline = properties.get(PROPERTY_TRANSLATION_INITIAL_TRANSLATION_DEADLINE, "14");
             this.projectDescription = properties.get(PROPERTY_TRANSLATION_PROJECT_DESCRIPTION, "");
+            this.previewPath = properties.get(PROPERTY_TRANSLATION_PREVIEW_PATH,"");
 
             if (log.isDebugEnabled()) {
                 log.debug("Created Cloudwords Cloud Config with the following:");
                 log.debug("translationServiceAttribution: {}", translationServiceAttribution);
                 log.debug("translationServiceLabel: {}", translationServiceLabel);
+                log.debug("previewPath: {}", previewPath);
             }
         } else {
             throw new TranslationException("Error getting Cloud Config credentials",
@@ -89,6 +92,12 @@ public class CloudwordsTranslationCloudConfigImpl implements CloudwordsTranslati
 	public String getDefaultProjectDescription() {
 		return this.projectDescription;
 	}
+	
+	@Override
+	public String getPreviewPath(){
+        log.trace("gePreviewPath");
+        return previewPath;
+    }
 	
 	@Override
 	public void decryptSecret(CryptoSupport helper)	{
