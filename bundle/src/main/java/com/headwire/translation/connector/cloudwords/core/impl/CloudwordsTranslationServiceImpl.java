@@ -37,7 +37,7 @@ import com.adobe.granite.translation.api.TranslationResult;
 import com.adobe.granite.translation.api.TranslationScope;
 import com.adobe.granite.translation.api.TranslationService;
 import com.adobe.granite.translation.api.TranslationState;
-//import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
+import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 import com.adobe.granite.translation.core.common.AbstractTranslationService;
 import com.adobe.granite.translation.core.common.TranslationResultImpl;
 
@@ -76,9 +76,13 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 
     private static final String I18NCOMPONENTSTRINGDICT = "/i18n-dictionary";
     
+    private String exportFormat = CloudwordsConstants.EXPORT_FORMAT_XML;
+    
     private String previewPath = "";
     
     private Boolean isPreviewEnabled = false;
+    
+    private BootstrapTmsService bootstrapTmsService;
     
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
@@ -87,7 +91,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
-			CloudwordsTranslationCacheImpl cache
+			CloudwordsTranslationCacheImpl cache,
+			BootstrapTmsService bootstrapTmsService
 			) {
 		super(availableLanguageMap, 
 				availableCategoryMap, 
@@ -109,6 +114,9 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 //    	log.trace("RR: ==== config path: "+translationCloudConfigRootPath);
         cloudwordsTranslationCloudConfig = cwtc;
         translationCache = cache;
+        this.previewPath = previewPath;
+        this.bootstrapTmsService = bootstrapTmsService;
+        this.isPreviewEnabled = isPreviewEnabled;
     }
 
     @Override
@@ -519,7 +527,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    	FileUtil.deleteTempFile(xliffFile);
     	}
     	
-    	//String objectPath = bootstrapTmsService.uploadBootstrapTmsObject(strTranslationJobID, getObjectPath(translationObject), is, translationObject.getMimeType(), exportFormat);
+    	String objectPath = bootstrapTmsService.uploadBootstrapTmsObject(strTranslationJobID, getObjectPath(translationObject), is, translationObject.getMimeType(), exportFormat);
 
 		// Generate Preview
 		if(isPreviewEnabled) {
@@ -538,8 +546,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		}
 		log.trace("Preview Directory is: {}", previewPath);
 
-		//return objectPath;
-		return null;
+		return objectPath;
+		//return null;
     }
     
     private String getObjectPath (TranslationObject translationObject){
