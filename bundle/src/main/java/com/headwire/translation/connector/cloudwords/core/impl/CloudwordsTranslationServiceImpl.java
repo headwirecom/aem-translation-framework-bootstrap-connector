@@ -116,7 +116,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         translationCache = cache;
         this.previewPath = previewPath;
         //this.bootstrapTmsService = bootstrapTmsService;
-        this.isPreviewEnabled = true;
+        this.isPreviewEnabled = isPreviewEnabled;
     }
 
     @Override
@@ -467,9 +467,9 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	InputStream is = translationObject.getTranslationObjectInputStream();
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
-    	
+    	log.error("is preview enabled:........" + isPreviewEnabled);
     	// Generate Preview
-    	if(true) {
+    	if(isPreviewEnabled) {
     		try {
     			ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
     			if (zipInputStream != null) {
