@@ -53,6 +53,11 @@
 					<listeners jcr:primaryType="nt:unstructured"
 						change="function(comp) {CQ.cloudservices.getEditOk().enable();}" />
 				</projectDescription >
+				<previewPath jcr:primaryType="cq:Widget" 
+					fieldLabel="Target Directory for Preview content:" name="./previewPath" xtype="textfield" 
+					fieldDescription="Make sure to enable preview in the Web console for the Cloudwords Translation Factory">
+                  	<listeners jcr:primaryType="nt:unstructured" change="function(comp) {CQ.cloudservices.getEditOk().enable();}"/>
+            	</previewPath>
 			</items>
 		</general>
 	</items>

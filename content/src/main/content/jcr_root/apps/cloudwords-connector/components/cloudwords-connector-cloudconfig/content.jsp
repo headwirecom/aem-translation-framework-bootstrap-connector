@@ -42,6 +42,8 @@
         xssAPI.encodeForHTML(properties.get("apiKey", "").replaceAll(".", "*")) %></div></li>
         <li><div class="li-bullet"><strong><%= i18n.get("Project Description") %>: </strong><%=
         xssAPI.encodeForHTML(properties.get("projectDescription", "")) %></div></li>
+        <li><div class="li-bullet"><strong><%= i18n.get("Preview Path") %>: </strong><%=
+        xssAPI.encodeForHTML(properties.get("previewPath", "")) %></div></li>
         <%--<li><div class="li-bullet"><strong><%= i18n.get("Default Bid Deadline") %>: </strong><%=
         xssAPI.encodeForHTML(properties.get("bidDeadline", "")) %></div></li>
         <li><div class="li-bullet"><strong><%= i18n.get("Default Initial Translation Deadline") %>: </strong><%=
