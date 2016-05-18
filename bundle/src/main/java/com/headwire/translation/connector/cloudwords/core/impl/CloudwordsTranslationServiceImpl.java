@@ -468,7 +468,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	InputStream is = translationObject.getTranslationObjectInputStream();
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
-    	log.error("is preview enabled:........" + isPreviewEnabled);
+    	
     	// Generate Preview
     	if(isPreviewEnabled) {
     		try {

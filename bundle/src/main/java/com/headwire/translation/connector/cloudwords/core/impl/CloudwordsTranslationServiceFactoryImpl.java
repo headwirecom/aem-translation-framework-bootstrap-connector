@@ -2,21 +2,16 @@ package com.headwire.translation.connector.cloudwords.core.impl;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.ResourceResolverFactory;
+import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,25 +66,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
 
     //@Reference
     //BootstrapTmsService bootstrapTmsService;
-    /*
-    private Map<String,String> properties = new HashMap<String,String>();
-	@Activate
-	protected void activate(ComponentContext componentContext) {setup(componentContext);}
-	@Modified
-	protected void modified(ComponentContext componentContext) {setup(componentContext);}
-	@Deactivate
-	protected void deactivate() {properties.clear();}
-
-	protected void setup(ComponentContext componentContext) {
-		Dictionary dictionary = componentContext.getProperties();
-		Enumeration<String> e = dictionary.keys();
-		while(e.hasMoreElements()) {
-			String key = e.nextElement();
-			Object temp = dictionary.get(key);
-			properties.put(key, temp == null ? "" : temp.toString());
-		}
-	} */
-    
+        
     private List<TranslationMethod> supportedTranslationMethods;
 
     public CloudwordsTranslationServiceFactoryImpl() {
@@ -121,9 +98,6 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
             cloudwordsCloudConfg.decryptSecret(cryptoSupport);
         }
         
-        //isPreviewEnabled = Boolean.valueOf(properties.get(CloudwordsConstants.PREVIEW_ENABLED));
-        //exportFormat = properties.get(CloudwordsConstants.EXPORT_FORMAT_FIELD);
-        
         return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache);
     }
 
@@ -147,6 +121,23 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     	if (this.translationConfig == translationConfig) {
     		this.translationConfig = null;
     	}
+    }
+    
+    protected void activate(final ComponentContext ctx) {
+        log.trace("Starting function: activate");
+        final Dictionary<?, ?> properties = ctx.getProperties();
+
+        factoryName = PropertiesUtil.toString(properties.get(TranslationServiceFactory.PROPERTY_TRANSLATION_FACTORY),"");
+
+        isPreviewEnabled = PropertiesUtil.toBoolean(properties.get(CloudwordsConstants.PREVIEW_ENABLED), false);
+        
+        exportFormat = PropertiesUtil.toString(properties.get(CloudwordsConstants.EXPORT_FORMAT_FIELD), CloudwordsConstants.EXPORT_FORMAT_XML);
+        if (log.isTraceEnabled()) {
+            log.trace("Activated TSF with the following:");
+            log.trace("Factory Name: {}", factoryName);
+            log.trace("Preview Enabled: {}",isPreviewEnabled);
+            log.trace("Export Format: {}", exportFormat);
+        }
     }
 
 }
