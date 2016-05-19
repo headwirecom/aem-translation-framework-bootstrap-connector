@@ -161,6 +161,11 @@
                             		<artifactId>cloudwordsapi.core</artifactId>
                             		<target>/apps/cloudwords-connector/install</target>
                         		</embedded>
+                        		<embedded>
+						            <groupId>com.adobe.granite.translation</groupId>
+						            <artifactId>bootstrap-tms.core</artifactId>
+                            		<target>/apps/cloudwords-connector/install</target>
+                        		</embedded>
                     		</embeddeds>
                         </configuration>
                      </plugin>
@@ -210,5 +215,12 @@
             <artifactId>aem-api</artifactId>
         </dependency>
 
+	    <dependency>
+            <groupId>com.adobe.granite.translation</groupId>
+            <artifactId>bootstrap-tms.core</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../bootstrap-tms.bundle-1.0.0-SNAPSHOT.jar</systemPath>
+        </dependency>	
     </dependencies>
 </project>
