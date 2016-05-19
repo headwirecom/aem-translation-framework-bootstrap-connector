@@ -268,7 +268,7 @@
 		<dependency>
 			<groupId>com.cloudwords</groupId>
 			<artifactId>cw-client</artifactId>
-			<version>1.15.3</version>
+			<version>1.20.0</version>
 		</dependency>
 
 	</dependencies>
