@@ -49,12 +49,12 @@ import com.cloudwords.api.client.resources.Language;
 import com.cloudwords.api.client.resources.Project;
 import com.cloudwords.api.client.resources.SourceDocument;
 import com.cloudwords.api.client.resources.TranslatedDocument;
-//import com.headwire.cloudwords.pagedownloader.services.ZipDirectoryUtil;
-//import com.headwire.cloudwords.util.CloudwordsUtil;
+
 import com.headwire.translation.connector.cloudwords.core.CloudwordsAware;
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 import com.headwire.xliff.util.FileUtil;
 import com.headwire.xliff.util.SearchAndReplaceInputStreamUtil;
+import com.headwire.xliff.util.ZipDirectoryUtil;
 
 public class CloudwordsTranslationServiceImpl extends AbstractTranslationService implements TranslationService, CloudwordsAware {
 
@@ -255,7 +255,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         String strTargetLanguage, Date dueDate, TranslationState state, TranslationMetadata jobMetadata)
         throws TranslationException {
 
-    	log.error("LQ== starting function.........................: createTranslationJob()");
 //    	log.debug("RR: ==== source lang: "+strSourceLanguage);
 //    	log.debug("RR: ==== target lang: "+strTargetLanguage);
 
@@ -277,9 +276,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 				throw new TranslationException("not able to create translation project", cwe, ErrorCode.GENERAL_EXCEPTION);
 			}
 		}
-		log.error("cloudwords project created with id {}", PROJECT_ID_PREFIX + project.getId());
-		log.error("LQ== cloudwords project created with....................... id {}", project.getId());
-    	return ""+project.getId();
+		log.trace("cloudwords project created with id {}", PROJECT_ID_PREFIX + project.getId());
+		return ""+project.getId();
     }
 
     @Override
@@ -348,51 +346,49 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	if(state.getStatus().equals(TranslationStatus.SCOPE_REQUESTED)){
     		throw new TranslationException("", ErrorCode.SERVICE_NOT_IMPLEMENTED); 
     	}
-    	// if state is COMMITTED_FOR_TRANSLATION and no preview package is uploaded, upload a preview package
-    	else if (state.getStatus().equals(TranslationStatus.COMMITTED_FOR_TRANSLATION)){
-    		// todo 
-    		log.error("LQ== now uploading preview package");
-    		uploadPreviewZip();
-    	}
-        return null;
+    	return null;
     }
     
-    private void uploadPreviewZip(){
+    private void uploadPreviewZip(int projectId, String pageName, String pageFilePath){
     	
     	// Step 1: Zip the entire folder
-		String folderPath = this.previewPath;
+		String folderPath = pageFilePath;
 		File fileToZip = new File(folderPath);
-		File zipFile = new File(folderPath + ".zip");
+		// create zip file
+		String zipFileName = System.getProperty("java.io.tmpdir")  + projectId + "_" + pageName.replaceAll(".xml", "") + ".zip";
+		log.error("zip location: " + zipFileName);
+		File zipFile = new File(zipFileName);
+		log.error("LQ== zip file path is:" + zipFile.getPath());
 		try {
-			com.headwire.xliff.util.ZipDirectoryUtil.zipFile(folderPath, folderPath + ".zip", true);
+			ZipDirectoryUtil.zipFile(folderPath, zipFileName, true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		// Step 2: Upload Zip file to cloudwords site
-		//uploadZip(zipFile, projectId, targetLanguageCode, translationDataEntry);
+		uploadZip(zipFile, projectId, pageName);
 		
-		// Step 3 Todo: Remove temp files
+		// Step 3: Remove zip file
+		//ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
 		
+	}
+    
+    private void uploadZip(File zipFile, int projectId, String pageName){
+    		
+    	CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(cloudwordsTranslationCloudConfig.getEndpoint(), 
+				"1.16", cloudwordsTranslationCloudConfig.getApiKey());
     	
-    }
-    /*
-    private void uploadZip(File zipFile, int projectId, String targetLanguageCode, String translationDataEntry){
-		
-		CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(CloudwordsUtil.getApiToken(), 
-    					"1.16", CloudwordsUtil.getClientToken());
 		try {
-			
-			Language language = new Language(targetLanguageCode);
-			
-			// todo, match xliff name
-			List<TranslatedDocument> docs = customerClient.getTranslatedDocuments(projectId, language);
-			for(TranslatedDocument doc : docs){
-				if(doc.getXliff().getFilename().equals(translationDataEntry)){
-					log.trace("find match, uploading zip now");
-					customerClient.addTranslatedDocumentPreview(projectId, language, doc.getId(), zipFile);
+									
+			// match xliff name
+			List<SourceDocument> docs = customerClient.getSourceDocuments(projectId);
+			for(SourceDocument doc : docs){
+				log.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
+				if(doc.getXliff().getFilename().equals(pageName)){
+					log.error("find match, uploading zip now");
+					customerClient.addSourceDocumentPreview(projectId, doc.getId(), zipFile);
 				}else{
-					log.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  translationDataEntry);
+					log.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  pageName);
 					continue;
 				}
 			}
@@ -403,7 +399,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		}
 		
 	} 
-    */
+    
     @Override
     public TranslationStatus getTranslationJobStatus(String cwProjectStatus) throws TranslationException {
     	// Use CODES to translate
@@ -525,22 +521,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
     	
-    	// Generate Preview
-    	if(isPreviewEnabled) {
-    		try {
-    			ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
-    			if (zipInputStream != null) {
-    				unzipFileFromStream(zipInputStream, previewPath);
-    			} else {
-    				log.error("Got null for zipInputStream for " + getObjectPath(translationObject));
-    			}
-    		} catch (FileNotFoundException e) {
-    			log.error(e.getLocalizedMessage(), e);
-    		} catch (IOException e) {
-    			log.error(e.getLocalizedMessage(), e);
-    		}			
-    	}
-    	log.error("LQ== preview created for..........." + translationObject.getTitle());	
+    	
     	// Handle binary asset
     	try {
     		// Get mimetype from TranslationObject
@@ -570,8 +551,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	
     	// Handle page
     	if( sourcePath != null) {
-    		 		
-	    	sourcePath = tempFolder + sourcePath.replaceAll("/","_") + ".xml";
+    		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
+    		sourcePath = tempFolder + pageName;
 	    	File xliffFile = XliffExporter.convertXmlToXliff(is, sourcePath, getProjectSourceLanguage(strTranslationJobID), getProjectTargetLanguage(strTranslationJobID));
 	
 	    	// Do not upload xliff File if it's null, this happens when a tag metadata xliff doesn't have any trans units
@@ -580,12 +561,38 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    		return EMPTY_TRANSLATION_OBJECT_ID;
 	    	}
 	    	
+	    	
+	    	String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
+	    	// Generate Preview Package
+	    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA"))) {
+	    		try {
+	    			ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
+	    			if (zipInputStream != null) {
+	    				unzipFileFromStream(zipInputStream, unzippedPath);
+	    			} else {
+	    				log.error("Got null for zipInputStream for " + getObjectPath(translationObject));
+	    			}
+	    		} catch (FileNotFoundException e) {
+	    			log.error(e.getLocalizedMessage(), e);
+	    		} catch (IOException e) {
+	    			log.error(e.getLocalizedMessage(), e);
+	    		}	
+	    		log.error("LQ== preview package created for..........." + translationObject.getTitle());	
+	    	}
+	    	
+	    	
 	    	// add file to project
 	    	try {
 				SourceDocument source = getClient().addSourceDocument(getIntFromNullableString(strTranslationJobID), xliffFile);
 				// Remove temp xliffFile
 		    	FileUtil.deleteTempFile(xliffFile);
 		    	log.info(PROJECT_ID_PREFIX + strTranslationJobID + " Xliff file uploaded: " + xliffFile.getAbsolutePath());
+		    	
+		    	// now upload a page preview package to cloudwords
+		    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA"))) {
+		    		log.error("LQ== upload zip to cloudwords");
+		    		uploadPreviewZip(getIntFromNullableString(strTranslationJobID),pageName, unzippedPath);
+		    	}
 				return ""+source.getId();
 				
 			} catch (NumberFormatException e) {
