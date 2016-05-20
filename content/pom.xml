@@ -118,6 +118,7 @@
 					<verbose>true</verbose>
 					<failOnError>true</failOnError>
                     <group>cloudwords Content Package</group>
+                    <name>Cloudwords Translation Connector</name>
                     <embeddeds>
                         <embedded>
                             <groupId>com.headwire.cloudwords</groupId>
