@@ -1,4 +1,4 @@
-package com.headwire.xliff.util;
+package com.headwire.pageUploader.services;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -54,7 +54,7 @@ import com.headwire.translation.connector.cloudwords.core.CloudwordsAware;
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 import com.headwire.xliff.util.FileUtil;
 import com.headwire.xliff.util.SearchAndReplaceInputStreamUtil;
-import com.headwire.xliff.util.ZipDirectoryUtil;
+import com.headwire.pageUploader.services.ZipDirectoryUtil;
 
 public class CloudwordsTranslationServiceImpl extends AbstractTranslationService implements TranslationService, CloudwordsAware {
 
