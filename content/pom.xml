@@ -32,7 +32,7 @@
     <artifactId>cloudwordsapi.ui.content</artifactId>
     <packaging>content-package</packaging>
     <name>cloudwords - Content</name>
-    <description>UI content package for cloudwords</description>
+    <description>Cloudwords for Adobe Experience Manager. This connector allows you to use cloudwords (a translation service hub) to translate content from AEM 6.2+. For more information about cloudwords visit http://www.cloudwords.com.</description>
 
     <!-- <scm>
         <connection></connection>
