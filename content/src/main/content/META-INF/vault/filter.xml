@@ -2,5 +2,5 @@
 <workspaceFilter version="1.0">
     <filter root="/apps/cloudwords-connector"/>
     <filter root="/etc/cloudservices/cloudwords-translation" mode="update"/>
-    <filter root="/home/users/system"/>
+    <filter root="/home/users/system/cloudwords-service"/>
 </workspaceFilter>
