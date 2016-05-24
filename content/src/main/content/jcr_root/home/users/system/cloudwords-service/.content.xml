@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:rep="internal"
+    jcr:primaryType="rep:SystemUser"
+    jcr:uuid="cdc95a96-5664-3317-b06a-5c01d83fa51a"
+    rep:authorizableId="cloudwords-service"
+    rep:principalName="cloudwords-service"
+    familyName="cloudwords"
+    memberAction="sudoers"
+    memberEntry="[admin]"/>
