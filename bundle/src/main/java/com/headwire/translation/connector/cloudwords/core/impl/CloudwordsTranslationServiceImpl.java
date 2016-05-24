@@ -596,7 +596,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    		// LQ: headwire way of generating page preview files
 	    		//ResourceResolver rr = getResourceResolver(resourceResolverFactory);
 	    		if(rr == null) log.error("LQ == rr is null");
-				pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath, cloudwordsTranslationCloudConfig.getEndpoint(), cloudwordsTranslationCloudConfig.getApiKey());
+				pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", cloudwordsTranslationCloudConfig.getEndpoint(), cloudwordsTranslationCloudConfig.getApiKey());
 	    		//rr.close();
 	    		
 	    		log.error("LQ== preview package created for..........." + translationObject.getTitle());	

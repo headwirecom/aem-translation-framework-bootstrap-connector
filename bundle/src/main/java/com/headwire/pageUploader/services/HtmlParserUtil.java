@@ -225,7 +225,7 @@ public class HtmlParserUtil {
 	 * @param pageFolderName the page folder name
 	 */
 	public static void saveTextFile(String text, String path, String fileName, String pageFolderName, String tempFolder){
-		LOG.trace("file path:" + path + " file name:" + fileName);
+		LOG.error("LQ == file path:" + path + " file name:" + fileName);
 		try {
 			String filePath = null;
 			if(path.equals("")) {filePath = tempFolder + "/" + pageFolderName + "/";}

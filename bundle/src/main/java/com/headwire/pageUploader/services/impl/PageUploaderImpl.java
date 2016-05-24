@@ -108,9 +108,9 @@ public class PageUploaderImpl
         String pageFolderName = pagePath.replaceAll("/", "_");
         //String serverUrl = getProperty(CloudwordsManager.PAGE_PREVIEW_BASE_URL,"");
         String serverUrl = "http://localhost:4502";
-        LOG.error("LQ: Start uploading page zip to CW... page path:" + serverUrl + pagePath + ".html?wcmmode=disabled");
+        LOG.error("LQ: Start uploading page zip to CW... page path:" + serverUrl + pagePath + "?wcmmode=disabled");
         // Retrieve html content of a page
-        String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + ".html?wcmmode=disabled");
+        String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + "?wcmmode=disabled");
         //LOG.error("LQ: html string: " + htmlString);		
         // check if 404 status returned
     	if (PageUtil.is404Page(htmlString)){
