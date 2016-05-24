@@ -2,7 +2,12 @@ package com.headwire.translation.connector.cloudwords.core.impl;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
@@ -10,8 +15,12 @@ import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.apache.sling.jcr.api.SlingRepository;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +35,7 @@ import com.adobe.granite.translation.core.TranslationCloudConfigUtil;
 import com.adobe.granite.translation.core.common.AbstractTranslationServiceFactory;
 //import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 
+import com.headwire.pageUploader.services.impl.PageUploaderImpl;
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 
 @Service
@@ -48,6 +58,8 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
 	protected Boolean isPreviewEnabled;
     
     protected String exportFormat;
+    
+    protected ResourceResolver rr;
 
     @Reference
     TranslationCloudConfigUtil cloudConfigUtil;
@@ -63,6 +75,12 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     
     @Reference
     CloudwordsTranslationCacheImpl cloudwordsTranslationCache;
+    
+    @Reference
+    PageUploaderImpl pageUploaderImpl;
+    
+    @Reference
+    private SlingRepository repository;
 
     //@Reference
     //BootstrapTmsService bootstrapTmsService;
@@ -98,7 +116,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
             cloudwordsCloudConfg.decryptSecret(cryptoSupport);
         }
         
-        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache);
+        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache, pageUploaderImpl, getResourceResolver(resourceResolverFactory));
     }
 
     @Override
@@ -124,7 +142,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     }
     
     protected void activate(final ComponentContext ctx) {
-        log.trace("Starting function: activate");
+        log.error("LQ == Starting function: activate");
         final Dictionary<?, ?> properties = ctx.getProperties();
 
         factoryName = PropertiesUtil.toString(properties.get(TranslationServiceFactory.PROPERTY_TRANSLATION_FACTORY),"");
@@ -132,6 +150,9 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         isPreviewEnabled = PropertiesUtil.toBoolean(properties.get(CloudwordsConstants.PREVIEW_ENABLED), false);
         
         exportFormat = PropertiesUtil.toString(properties.get(CloudwordsConstants.EXPORT_FORMAT_FIELD), CloudwordsConstants.EXPORT_FORMAT_XML);
+        
+        //rr = getResourceResolver(resourceResolverFactory);
+        
         if (log.isTraceEnabled()) {
             log.trace("Activated TSF with the following:");
             log.trace("Factory Name: {}", factoryName);
@@ -139,5 +160,43 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
             log.trace("Export Format: {}", exportFormat);
         }
     }
+    
+    
+    protected ResourceResolver getResourceResolver(ResourceResolverFactory resourceResolverFactory){
+    	log.error("LQ == Starting function: getResourceResolver");
+		ResourceResolver resourceResolver = null;
+		Map<String, Object> param = new HashMap<String, Object>();
+		/*try {
+			Session adminSession = repository.loginAdministrative("crx.default");
+			param.put( "user.jcr.session", adminSession);
+			param.put(ResourceResolverFactory.USER, "admin");
+			resourceResolver = resourceResolverFactory.getServiceResourceResolver(param);
+			log.error("LQ == rr user id:" + resourceResolver.getUserID());
+			Resource res = resourceResolver.getResource("/content/geometrixx");
+            log.error("LQ == Resource : " + res.getPath());
+            adminSession.logout();
+		} catch (javax.jcr.LoginException e) {
+			e.printStackTrace();
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		} catch (LoginException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} */
+		param.put(ResourceResolverFactory.SUBSERVICE, "readService");
+		param.put(ResourceResolverFactory.USER, "cloudwords-service");
+		
+			try {
+				resourceResolver = resourceResolverFactory.getServiceResourceResolver(param);
+				log.error("LQ == rr user id:" + resourceResolver.getUserID());
+				Resource res = resourceResolver.getResource("/content/geometrixx");
+	            log.error("LQ == Resource : " + res.getPath());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				log.error("res error:" + e.toString());
+				e.printStackTrace();
+			} 
+		return resourceResolver;
+		}
 
 }

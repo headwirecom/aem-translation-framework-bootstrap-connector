@@ -20,6 +20,10 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +53,12 @@ import com.cloudwords.api.client.resources.Language;
 import com.cloudwords.api.client.resources.Project;
 import com.cloudwords.api.client.resources.SourceDocument;
 import com.cloudwords.api.client.resources.TranslatedDocument;
-
 import com.headwire.translation.connector.cloudwords.core.CloudwordsAware;
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 import com.headwire.xliff.util.FileUtil;
 import com.headwire.xliff.util.SearchAndReplaceInputStreamUtil;
 import com.headwire.pageUploader.services.ZipDirectoryUtil;
+import com.headwire.pageUploader.services.impl.PageUploaderImpl;
 
 public class CloudwordsTranslationServiceImpl extends AbstractTranslationService implements TranslationService, CloudwordsAware {
 
@@ -63,6 +67,10 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     private CloudwordsTranslationCloudConfig cloudwordsTranslationCloudConfig;
     
     private CloudwordsTranslationCacheImpl translationCache;
+    
+    private PageUploaderImpl pageUploaderImpl;
+    
+    private ResourceResolver rr;
     
     private static final String TAG_META_DATA_TITLE = "translation_tag_metadata";
     
@@ -84,6 +92,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private Boolean isPreviewEnabled = false;
     
+     
     //private BootstrapTmsService bootstrapTmsService;
     
     public CloudwordsTranslationServiceImpl(
@@ -93,7 +102,9 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
-			CloudwordsTranslationCacheImpl cache
+			CloudwordsTranslationCacheImpl cache,
+			PageUploaderImpl pageUploader,
+			ResourceResolver resourceResolver
 			//BootstrapTmsService bootstrapTmsService
 			) {
 		super(availableLanguageMap, 
@@ -116,10 +127,12 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 //    	log.trace("RR: ==== config path: "+translationCloudConfigRootPath);
         cloudwordsTranslationCloudConfig = cwtc;
         translationCache = cache;
+        pageUploaderImpl = pageUploader;
         this.previewPath = previewPath;
         //this.bootstrapTmsService = bootstrapTmsService;
         this.isPreviewEnabled = isPreviewEnabled;
         this.exportFormat = exportFormat;
+        this.rr = resourceResolver;
     }
 
     @Override
@@ -551,6 +564,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	
     	// Handle page
     	if( sourcePath != null) {
+    		String pagePath = sourcePath;
     		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
     		sourcePath = tempFolder + pageName;
 	    	File xliffFile = XliffExporter.convertXmlToXliff(is, sourcePath, getProjectSourceLanguage(strTranslationJobID), getProjectTargetLanguage(strTranslationJobID));
@@ -561,10 +575,11 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    		return EMPTY_TRANSLATION_OBJECT_ID;
 	    	}
 	    	
-	    	
 	    	String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
 	    	// Generate Preview Package
 	    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA"))) {
+	    		// LQ: Adobe way of generating page preview files
+	    		/*
 	    		try {
 	    			ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
 	    			if (zipInputStream != null) {
@@ -576,7 +591,14 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    			log.error(e.getLocalizedMessage(), e);
 	    		} catch (IOException e) {
 	    			log.error(e.getLocalizedMessage(), e);
-	    		}	
+	    		}	*/
+	    		
+	    		// LQ: headwire way of generating page preview files
+	    		//ResourceResolver rr = getResourceResolver(resourceResolverFactory);
+	    		if(rr == null) log.error("LQ == rr is null");
+				pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath, cloudwordsTranslationCloudConfig.getEndpoint(), cloudwordsTranslationCloudConfig.getApiKey());
+	    		//rr.close();
+	    		
 	    		log.error("LQ== preview package created for..........." + translationObject.getTitle());	
 	    	}
 	    	
@@ -588,10 +610,10 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		    	FileUtil.deleteTempFile(xliffFile);
 		    	log.info(PROJECT_ID_PREFIX + strTranslationJobID + " Xliff file uploaded: " + xliffFile.getAbsolutePath());
 		    	
-		    	// now upload a page preview package to cloudwords
+		    	// LQ: now upload a page preview package to cloudwords
 		    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA"))) {
-		    		log.error("LQ== upload zip to cloudwords");
-		    		uploadPreviewZip(getIntFromNullableString(strTranslationJobID),pageName, unzippedPath);
+		    		//log.error("LQ== upload zip to cloudwords");
+		    		//uploadPreviewZip(getIntFromNullableString(strTranslationJobID),pageName, unzippedPath);
 		    	}
 				return ""+source.getId();
 				
@@ -1007,6 +1029,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		}
 		zipInputStream.close();
 	}
+	
+	
 	
     
 }

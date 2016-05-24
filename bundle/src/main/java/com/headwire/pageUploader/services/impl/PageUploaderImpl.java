@@ -30,22 +30,20 @@ import com.cloudwords.api.client.CloudwordsCustomerAPI;
 import com.cloudwords.api.client.CloudwordsCustomerClient;
 import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.Language;
-import com.cloudwords.api.client.resources.Project;
+import com.cloudwords.api.client.resources.SourceDocument;
 import com.cloudwords.api.client.resources.TranslatedDocument;
 import com.headwire.pageUploader.services.PageUploader;
 import com.headwire.pageUploader.services.PageUtil;
 import com.headwire.pageUploader.services.ServersideRequestUtil;
 import com.headwire.pageUploader.services.ZipDirectoryUtil;
-//import com.headwire.cloudwords.services.CloudwordsManager;
-//import com.headwire.cloudwords.util.CloudwordsUtil;
 
 
 @org.apache.felix.scr.annotations.Component(metatype = true, label = "PageUploader Implementation", description = "Implements the PageUploader service")
-@Service()
+@Service(PageUploaderImpl.class)
 @Properties({
 	@Property(name = Constants.SERVICE_VENDOR, value = "Headwire.com, Inc."),
 	@Property(name = Constants.SERVICE_DESCRIPTION, value = "PageUploader service"),
-	@Property(name = "Preview Base Url", value = "http://localhost:4502", label = "Page Preview Base Url", description = "Put page preview base url here.")
+	@Property(name = "PreviewBaseUrl", value = "http://localhost:4502", label = "Page Preview Base Url", description = "Put page preview base url here.")
 })
 public class PageUploaderImpl 
 	implements PageUploader{
@@ -61,13 +59,14 @@ public class PageUploaderImpl
 	@Override
 	public void uploadPage(ResourceResolver rr, int projectId, String targetLanguageCode, String translationDataEntry, String pagePath, String endPoint, String apiKey) {
 		
-		LOG.trace("LQ: Start uploading page zip to CW...");
+		LOG.error("LQ: Start uploading page zip to CW....");
 				
 		String pageName = pagePath.substring(pagePath.lastIndexOf("/")+1, pagePath.length());
         String pageFolderName = pagePath.replaceAll("/", "_");
         //String serverUrl = getProperty(CloudwordsManager.PAGE_PREVIEW_BASE_URL,"");
-        String serverUrl = "http://localhost:/4502";
+        String serverUrl = "http://localhost:4502";
         
+        LOG.error("LQ: Start uploading page zip to CW page path: " + pagePath);
         // Retrieve html content of a page
         String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + "?wcmmode=disabled");
         		
@@ -100,6 +99,47 @@ public class PageUploaderImpl
 		
 		
 	}
+	
+	public void uploadSourcePage(ResourceResolver rr, int projectId, String translationDataEntry, String pagePath, String endPoint, String apiKey){
+		LOG.error("LQ == temp folder:" + tempFolder);
+		LOG.error("LQ: Start uploading page zip to CW...");
+		
+		String pageName = pagePath.substring(pagePath.lastIndexOf("/")+1, pagePath.length());
+        String pageFolderName = pagePath.replaceAll("/", "_");
+        //String serverUrl = getProperty(CloudwordsManager.PAGE_PREVIEW_BASE_URL,"");
+        String serverUrl = "http://localhost:4502";
+        LOG.error("LQ: Start uploading page zip to CW... page path:" + serverUrl + pagePath + ".html?wcmmode=disabled");
+        // Retrieve html content of a page
+        String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + ".html?wcmmode=disabled");
+        LOG.error("LQ: html string: " + htmlString);		
+        // check if 404 status returned
+    	if (PageUtil.is404Page(htmlString)){
+    		LOG.error("404 error, page not found exception: {}", pagePath);
+    	}
+    	else {
+            // Step 1: Save page and all related scripts, images to a folder
+    		PageUtil.savePage(rr, resourceResolverFactory, htmlString, pageName, pageFolderName, tempFolder, serverUrl);
+        
+    		// Step 2: Zip the entire folder
+    		String folderPath = tempFolder + "/" + pageFolderName.replaceAll("/", "_");
+    		//String folderPath = tempFolder + pageFolderName.replaceAll("/", "_");
+    		File fileToZip = new File(folderPath);
+    		File zipFile = new File(folderPath + ".zip");
+    		try {
+				ZipDirectoryUtil.zipFile(folderPath, folderPath + ".zip", true);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    		
+    		// Step 3: Todo: Upload Zip file to cloudwords site
+    		uploadSourceZip(zipFile, projectId, translationDataEntry, endPoint, apiKey);
+            
+    		// Step 4: Delete downloaded file and zip file from temp folder
+    		//ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
+    		
+    	}
+		
+	}
 
 	@Override
 	public String getPageHtml(ResourceResolver rr, ResourceResolverFactory resourceResolverFactory, String pageUrl) {
@@ -112,6 +152,7 @@ public class PageUploaderImpl
 			IOUtils.copy(is, writer, "UTF-8");
 			htmlString = writer.toString();
         } catch (Exception e) {
+        	LOG.error("LQ == getPageHtml error:" + e.getMessage());
 			e.printStackTrace();
 		}
 		return htmlString;
@@ -143,6 +184,31 @@ public class PageUploaderImpl
 		}
 		
 	} 
+    
+    private void uploadSourceZip(File zipFile, int projectId, String pageName, String endPoint, String apiKey){
+    	CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(endPoint, 
+				"1.16", apiKey);
+    	
+		try {
+									
+			// match xliff name
+			List<SourceDocument> docs = customerClient.getSourceDocuments(projectId);
+			for(SourceDocument doc : docs){
+				LOG.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
+				if(doc.getXliff().getFilename().equals(pageName)){
+					LOG.error("find match, uploading zip now");
+					customerClient.addSourceDocumentPreview(projectId, doc.getId(), zipFile);
+				}else{
+					LOG.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  pageName);
+					continue;
+				}
+			}
+			
+			LOG.debug("Page zip uploaded to CW");
+		} catch (CloudwordsClientException e) {
+			LOG.error("CloudwordsClientException: {}", e);
+		}
+    }
     
     //  private ServiceReference mServiceReference;
     private Map<String,String> properties = new HashMap<String,String>();
