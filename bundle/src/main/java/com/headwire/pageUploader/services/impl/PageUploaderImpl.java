@@ -111,7 +111,7 @@ public class PageUploaderImpl
         LOG.error("LQ: Start uploading page zip to CW... page path:" + serverUrl + pagePath + ".html?wcmmode=disabled");
         // Retrieve html content of a page
         String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + ".html?wcmmode=disabled");
-        LOG.error("LQ: html string: " + htmlString);		
+        //LOG.error("LQ: html string: " + htmlString);		
         // check if 404 status returned
     	if (PageUtil.is404Page(htmlString)){
     		LOG.error("404 error, page not found exception: {}", pagePath);
