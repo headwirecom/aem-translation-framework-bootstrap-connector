@@ -6,16 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
@@ -166,23 +162,6 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     	log.error("LQ == Starting function: getResourceResolver");
 		ResourceResolver resourceResolver = null;
 		Map<String, Object> param = new HashMap<String, Object>();
-		/*try {
-			Session adminSession = repository.loginAdministrative("crx.default");
-			param.put( "user.jcr.session", adminSession);
-			param.put(ResourceResolverFactory.USER, "admin");
-			resourceResolver = resourceResolverFactory.getServiceResourceResolver(param);
-			log.error("LQ == rr user id:" + resourceResolver.getUserID());
-			Resource res = resourceResolver.getResource("/content/geometrixx");
-            log.error("LQ == Resource : " + res.getPath());
-            adminSession.logout();
-		} catch (javax.jcr.LoginException e) {
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} catch (LoginException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} */
 		param.put(ResourceResolverFactory.SUBSERVICE, "readService");
 		param.put(ResourceResolverFactory.USER, "cloudwords-service");
 		
@@ -193,7 +172,6 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
 	            log.error("LQ == Resource : " + res.getPath());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				log.error("res error:" + e.toString());
 				e.printStackTrace();
 			} 
 		return resourceResolver;

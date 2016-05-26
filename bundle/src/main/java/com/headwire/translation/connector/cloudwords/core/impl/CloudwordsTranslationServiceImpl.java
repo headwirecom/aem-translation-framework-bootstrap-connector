@@ -20,10 +20,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -341,6 +338,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	CODES.put("cancelled", TranslationStatus.CANCEL);
     }
     
+    // project status mapping between cloudwords and aem
     private static HashMap<String, TranslationStatus> translationObjectCodes = new HashMap<String, TranslationConstants.TranslationStatus>();
     {
     	translationObjectCodes.put("syncing", TranslationStatus.TRANSLATION_IN_PROGRESS);
@@ -382,31 +380,27 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		uploadZip(zipFile, projectId, pageName);
 		
 		// Step 3: Remove zip file
-		//ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
+		ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
 		
 	}
     
     private void uploadZip(File zipFile, int projectId, String pageName){
     		
-    	CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(cloudwordsTranslationCloudConfig.getEndpoint(), 
-				"1.16", cloudwordsTranslationCloudConfig.getApiKey());
-    	
-		try {
+    	try {
 									
 			// match xliff name
-			List<SourceDocument> docs = customerClient.getSourceDocuments(projectId);
+			List<SourceDocument> docs = getClient().getSourceDocuments(projectId);
 			for(SourceDocument doc : docs){
 				log.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
 				if(doc.getXliff().getFilename().equals(pageName)){
 					log.error("find match, uploading zip now");
-					customerClient.addSourceDocumentPreview(projectId, doc.getId(), zipFile);
+					getClient().addSourceDocumentPreview(projectId, doc.getId(), zipFile);
 				}else{
 					log.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  pageName);
 					continue;
 				}
 			}
-			
-		    log.debug("Page zip uploaded to CW");
+			log.debug("Page zip uploaded to CW");
 		} catch (CloudwordsClientException e) {
 			log.error("CloudwordsClientException: {}", e);
 		}
@@ -576,7 +570,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    		return EMPTY_TRANSLATION_OBJECT_ID;
 	    	}
 	    	
-	    	String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
+	    	//String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
 	    	// Generate Preview Package
 	    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA"))) {
 	    		// LQ: Adobe way of generating page preview files
