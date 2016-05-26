@@ -18,6 +18,7 @@
 	<modules>
 		<module>bundle</module>
 		<module>content</module>
+		<module>config</module>
 	</modules>
 
     <scm>
