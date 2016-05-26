@@ -41,7 +41,7 @@ import com.adobe.granite.translation.api.TranslationState;
 //import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 import com.adobe.granite.translation.core.common.AbstractTranslationService;
 import com.adobe.granite.translation.core.common.TranslationResultImpl;
-import com.cloudwords.api.client.CloudwordsCustomerAPI;
+
 import com.cloudwords.api.client.CloudwordsCustomerClient;
 import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.CloudwordsFile;
@@ -709,7 +709,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	log.error("project id is:" + strTranslationJobID);
         log.error("translationObject src path is:" + translationObject.getTranslationObjectSourcePath());
         
-        // to do: upload preview copy for source documents 
+        // Upload preview copy for source documents 
         if (!isBinaryObject(translationObject) && getNonEmptySourcePath(translationObject) != null && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))){
         	log.error("LQ == in if now, translationobject title:" + translationObject.getTitle());
         	String sourcePath = getNonEmptySourcePath(translationObject);
@@ -778,7 +778,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     private boolean isTranslatedXliff(CloudwordsFile file, TranslationObject object){
     	String sourcePath = getNonEmptySourcePath(object);
     	// page and tag meta data
-    	if(file.getFilename().equals(sourcePath.replaceAll("/","_") + ".xlf")){
+    	if(file != null && file.getFilename().equals(sourcePath.replaceAll("/","_") + ".xlf")){
 			return true;
 		} else{
 			return false;
@@ -788,9 +788,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private boolean isTranslatedAsset(CloudwordsFile file, TranslationObject object){
     	String srcPath = object.getTranslationObjectSourcePath();
-    	log.trace("in isTranslatedAsset method, object source path is:" + srcPath);
     	//if(toAemFileName(file.getFilename()).equals(srcPath.substring(srcPath.lastIndexOf("/")+1, srcPath.length()))){
-    	if(toAemFileName(file.getFilename()).equals(srcPath)){
+    	if(file!= null && toAemFileName(file.getFilename()).equals(srcPath)){
 			return true;
 		}else{
 			return false;
