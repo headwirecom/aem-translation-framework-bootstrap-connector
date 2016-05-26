@@ -1,6 +1,5 @@
 package com.headwire.translation.connector.cloudwords.core.impl;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class BootstrapConstants.
  */
@@ -20,4 +19,8 @@ public class CloudwordsConstants {
 	
 	/** The Constant PREVIEW_ENABLED. */
 	public static final String PREVIEW_ENABLED = "preview.enabled";
+	
+	/** The Constant AEM_BASE_URL. */
+	public static final String AEM_BASE_URL = "aemBaseUrl";
+	
 }

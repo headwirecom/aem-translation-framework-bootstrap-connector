@@ -36,6 +36,7 @@ import com.headwire.pageUploader.services.PageUploader;
 import com.headwire.pageUploader.services.PageUtil;
 import com.headwire.pageUploader.services.ServersideRequestUtil;
 import com.headwire.pageUploader.services.ZipDirectoryUtil;
+import com.headwire.translation.connector.cloudwords.core.impl.CloudwordsConstants;
 
 
 @org.apache.felix.scr.annotations.Component(metatype = true, label = "PageUploader Implementation", description = "Implements the PageUploader service")
@@ -43,7 +44,7 @@ import com.headwire.pageUploader.services.ZipDirectoryUtil;
 @Properties({
 	@Property(name = Constants.SERVICE_VENDOR, value = "Headwire.com, Inc."),
 	@Property(name = Constants.SERVICE_DESCRIPTION, value = "PageUploader service"),
-	@Property(name = "PreviewBaseUrl", value = "http://localhost:4502", label = "Page Preview Base Url", description = "Put page preview base url here.")
+	@Property(name = CloudwordsConstants.AEM_BASE_URL, value = "http://localhost:4502", label = "AEM Base Url", description = "Put AEM base url with port here.")
 })
 public class PageUploaderImpl 
 	implements PageUploader{
@@ -66,8 +67,8 @@ public class PageUploaderImpl
         String pageFolderName = pagePath.replaceAll("/", "_");
         
         LOG.error("LQ: pageName : " + pageName + " pageFolderName : " + pageFolderName);
-        //String serverUrl = getProperty(CloudwordsManager.PAGE_PREVIEW_BASE_URL,"");
-        String serverUrl = "http://localhost:4502";
+        String serverUrl = getProperty(CloudwordsConstants.AEM_BASE_URL,"");
+        //String serverUrl = "http://localhost:4502";
         
         LOG.error("LQ: Start uploading page zip to CW page path: " + pagePath);
         // Retrieve html content of a page
@@ -109,8 +110,8 @@ public class PageUploaderImpl
 		
 		String pageName = pagePath.substring(pagePath.lastIndexOf("/")+1, pagePath.length());
         String pageFolderName = pagePath.replaceAll("/", "_");
-        //String serverUrl = getProperty(CloudwordsManager.PAGE_PREVIEW_BASE_URL,"");
-        String serverUrl = "http://localhost:4502";
+        String serverUrl = getProperty(CloudwordsConstants.AEM_BASE_URL,"");
+        //String serverUrl = "http://localhost:4502";
         LOG.error("LQ: Start uploading page zip to CW... page path:" + serverUrl + pagePath + "?wcmmode=disabled");
         // Retrieve html content of a page
         String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + "?wcmmode=disabled");
