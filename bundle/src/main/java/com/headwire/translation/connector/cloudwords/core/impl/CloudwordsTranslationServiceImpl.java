@@ -572,7 +572,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    	
 	    	//String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
 	    	// Generate Preview Package
-	    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA"))) {
+	    	//if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))) {
 	    		// LQ: Adobe way of generating page preview files
 	    		/*
 	    		try {
@@ -591,11 +591,11 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    		// LQ: headwire way of generating page preview files
 	    		//ResourceResolver rr = getResourceResolver(resourceResolverFactory);
 	    		//if(rr == null) log.error("LQ == rr is null");
-				//pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", cloudwordsTranslationCloudConfig.getEndpoint(), cloudwordsTranslationCloudConfig.getApiKey());
+				//pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", getClient());
 	    		//rr.close();
 	    		
-	    		log.error("LQ== preview package created for..........." + translationObject.getTitle());	
-	    	}
+	    		//log.error("LQ== preview package created for..........." + translationObject.getTitle());	
+	    	//}
 	    	
 	    	
 	    	// add file to project
@@ -606,8 +606,9 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		    	log.info(PROJECT_ID_PREFIX + strTranslationJobID + " Xliff file uploaded: " + xliffFile.getAbsolutePath());
 		    	
 		    	// LQ: now upload a page preview package to cloudwords
-		    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA"))) {
-		    		//log.error("LQ== upload zip to cloudwords");
+		    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))) {
+		    		log.error("LQ== upload preview zip to cloudwords");
+		    		pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", getClient());
 		    		//uploadPreviewZip(getIntFromNullableString(strTranslationJobID),pageName, unzippedPath);
 		    	}
 				return ""+source.getId();
@@ -709,17 +710,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	log.error("project id is:" + strTranslationJobID);
         log.error("translationObject src path is:" + translationObject.getTranslationObjectSourcePath());
         
-        // Upload preview copy for source documents 
-        if (!isBinaryObject(translationObject) && getNonEmptySourcePath(translationObject) != null && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))){
-        	log.error("LQ == in if now, translationobject title:" + translationObject.getTitle());
-        	String sourcePath = getNonEmptySourcePath(translationObject);
-    		String pagePath = sourcePath;
-    		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
-    		sourcePath = System.getProperty("java.io.tmpdir") + pageName;
-        	pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", getClient());
-    		//rr.close();
-        	
-        }
         if (translationObject.getId().equals(EMPTY_TRANSLATION_OBJECT_ID)) {
         	return TranslationConstants.TranslationStatus.READY_FOR_REVIEW;
         }
