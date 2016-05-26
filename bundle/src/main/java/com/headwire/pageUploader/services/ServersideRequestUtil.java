@@ -82,10 +82,11 @@ public class ServersideRequestUtil {
 	 */
 	public static InputStream doRequestAsStream(ResourceResolver resolver, ResourceResolverFactory resolverFactory, String url, int timeout) throws Exception {
 		LOG.error("LQ == url is:" + url);
-		InputStream is = doRequestHelper(resolver, resolverFactory, HttpConstants.METHOD_GET, url, null, timeout).getResponseBodyAsStream();
+		HttpMethod request = doRequestHelper(resolver, resolverFactory, HttpConstants.METHOD_GET, url, null, timeout);
+		InputStream is = request.getResponseBodyAsStream();
 		if(is == null) LOG.error("LQ == is is null");
-		if(doRequestHelper(resolver, resolverFactory, HttpConstants.METHOD_GET, url, null, timeout).getResponseHeader("Content-Encoding") != null &&
-				doRequestHelper(resolver, resolverFactory, HttpConstants.METHOD_GET, url, null, timeout).getResponseHeader("Content-Encoding").getValue().equals("gzip"))
+		if(request.getResponseHeader("Content-Encoding") != null &&
+				request.getResponseHeader("Content-Encoding").getValue().equals("gzip"))
 		{
 			return new GZIPInputStream(is);
 		}
@@ -121,12 +122,9 @@ public class ServersideRequestUtil {
 		return doRequestHelper(resolver, resolverFactory, HttpConstants.METHOD_POST, url, requestEntity, timeout);
 	}
 	
-	private static String token = null;
-	private static long tokenCreatedTime = 0;
-	
 	
 	private static String getToken(ResourceResolver resolver, ResourceResolverFactory resolverFactory){
-		
+		String token = null;
 //		if(token == null || (token != null && (System.currentTimeMillis() - tokenCreatedTime > 60000))){
 			// update token
 			Session jcrSession = resolver.adaptTo(Session.class);
@@ -151,7 +149,7 @@ public class ServersideRequestUtil {
 			String repositoryId = adminSession.getRepository().getDescriptor("crx.cluster.id");
 			if (repositoryId == null)
 				repositoryId = adminSession.getRepository().getDescriptor("crx.repository.systemid");
-
+			String workspaceId = adminSession.getWorkspace().getName();
 			Session session2 = null;
 			
 			try {
@@ -162,7 +160,7 @@ public class ServersideRequestUtil {
 			} finally {
 				try {
 					LOG.error("Credential after session 2 is: " + credentials.getAttribute(".token"));
-					String value = Text.escape(String.format("%s:%s:%s", new Object[] {repositoryId, credentials.getAttribute(".token"), adminSession.getWorkspace().getName()}));
+					String value = Text.escape(String.format("%s:%s:%s", new Object[] {repositoryId, credentials.getAttribute(".token"), workspaceId}));
 					value = String.format("login-token=%s", new Object[] { value });
 					token = value;
 				} catch (Exception e) {
@@ -176,7 +174,7 @@ public class ServersideRequestUtil {
 				
 			}
 			
-			tokenCreatedTime = System.currentTimeMillis();
+			
 //		}
 		LOG.error("LQ == token is:" + token);
 		return token;
