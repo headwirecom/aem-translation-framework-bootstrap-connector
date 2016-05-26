@@ -165,9 +165,6 @@ public class PageUploaderImpl
 	
     private void uploadZip(File zipFile, int projectId, String targetLanguageCode, String translationDataEntry, CloudwordsCustomerClient customerClient){
 		
-		//CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(endPoint, 
-    	//				"1.16", apiKey);
-		
 		String cqPageName = translationDataEntry.replace(".xml", ".xlf");
 		try {
 			
@@ -198,9 +195,7 @@ public class PageUploaderImpl
 	} 
     
     private void uploadSourceZip(File zipFile, int projectId, String pageName, CloudwordsCustomerClient customerClient){
-    	//CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(endPoint, 
-		//		"1.16", apiKey);
-    	
+    	    	
     	String cqPageName = pageName.replace(".xml", ".xlf");
 		try {
 									
