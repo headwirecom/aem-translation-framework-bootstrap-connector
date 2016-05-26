@@ -57,12 +57,15 @@ public class PageUploaderImpl
 	protected ResourceResolverFactory resourceResolverFactory;
 
 	@Override
-	public void uploadPage(ResourceResolver rr, int projectId, String targetLanguageCode, String translationDataEntry, String pagePath, String endPoint, String apiKey) {
+	public void uploadPage(ResourceResolver rr, int projectId, String targetLanguageCode, String translationDataEntry, String pagePath, CloudwordsCustomerClient customerClient) {
 		
-		LOG.error("LQ: Start uploading page zip to CW....");
+		LOG.error("LQ: Start uploading translated page zip to CW....");
+		LOG.error("LQ: lang code : " + targetLanguageCode + " translationDataEntry : " + translationDataEntry + " pagePath : " + pagePath);
 				
 		String pageName = pagePath.substring(pagePath.lastIndexOf("/")+1, pagePath.length());
         String pageFolderName = pagePath.replaceAll("/", "_");
+        
+        LOG.error("LQ: pageName : " + pageName + " pageFolderName : " + pageFolderName);
         //String serverUrl = getProperty(CloudwordsManager.PAGE_PREVIEW_BASE_URL,"");
         String serverUrl = "http://localhost:4502";
         
@@ -90,7 +93,7 @@ public class PageUploaderImpl
 			}
     		
     		// Step 3: Todo: Upload Zip file to cloudwords site
-    		uploadZip(zipFile, projectId, targetLanguageCode, translationDataEntry, endPoint, apiKey);
+    		uploadZip(zipFile, projectId, targetLanguageCode, translationDataEntry, customerClient);
             
     		// Step 4: Delete downloaded file and zip file from temp folder
     		ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
@@ -100,7 +103,7 @@ public class PageUploaderImpl
 		
 	}
 	
-	public void uploadSourcePage(ResourceResolver rr, int projectId, String translationDataEntry, String pagePath, String endPoint, String apiKey){
+	public void uploadSourcePage(ResourceResolver rr, int projectId, String translationDataEntry, String pagePath, CloudwordsCustomerClient customerClient){
 		LOG.error("LQ == temp folder:" + tempFolder);
 		LOG.error("LQ: Start uploading page zip to CW...");
 		
@@ -132,10 +135,10 @@ public class PageUploaderImpl
 			}
     		
     		// Step 3: Todo: Upload Zip file to cloudwords site
-    		uploadSourceZip(zipFile, projectId, translationDataEntry, endPoint, apiKey);
+    		uploadSourceZip(zipFile, projectId, translationDataEntry, customerClient);
             
     		// Step 4: Delete downloaded file and zip file from temp folder
-    		//ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
+    		ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
     		
     	}
 		
@@ -147,7 +150,9 @@ public class PageUploaderImpl
 		String htmlString = null;
 		try {
         	//htmlString = ServersideRequestUtil.doRequestAsString(rr, resourceResolverFactory, pageUrl);
+    		LOG.error("---------------------------------------111");
         	InputStream is = ServersideRequestUtil.doRequestAsStream(rr, resourceResolverFactory, pageUrl);
+    		LOG.error("---------------------------------------222");
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(is, writer, "UTF-8");
 			htmlString = writer.toString();
@@ -158,22 +163,29 @@ public class PageUploaderImpl
 		return htmlString;
 	}
 	
-    private void uploadZip(File zipFile, int projectId, String targetLanguageCode, String translationDataEntry, String endPoint, String apiKey){
+    private void uploadZip(File zipFile, int projectId, String targetLanguageCode, String translationDataEntry, CloudwordsCustomerClient customerClient){
 		
-		CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(endPoint, 
-    					"1.16", apiKey);
+		//CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(endPoint, 
+    	//				"1.16", apiKey);
+		
+		String cqPageName = translationDataEntry.replace(".xml", ".xlf");
 		try {
 			
 			Language language = new Language(targetLanguageCode);
 			
 			// todo, match xliff name
 			List<TranslatedDocument> docs = customerClient.getTranslatedDocuments(projectId, language);
+			LOG.error("LQ == my docs size is:" + docs.size());
 			for(TranslatedDocument doc : docs){
-				if(doc.getXliff().getFilename().equals(translationDataEntry)){
+				//LOG.error("LQ == doc file name is:" + doc.getXliff().getFilename());
+				LOG.error("LQ == data entry is: " + cqPageName);
+				if(doc.getXliff()!= null) LOG.error("LQ == cw xlif name is:" + doc.getXliff().getFilename());
+				if(doc.getXliff() != null && doc.getXliff().getFilename().equals(cqPageName)){
 					LOG.trace("find match, uploading zip now");
+					LOG.error("LQ == project id:" + projectId + " language: " + language + " doc id:" + doc.getId() );
 					customerClient.addTranslatedDocumentPreview(projectId, language, doc.getId(), zipFile);
 				}else{
-					LOG.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  translationDataEntry);
+					LOG.warn("not match, from cw: " + doc.getSourceDocumentId() + "  , from cq: " +  translationDataEntry);
 					continue;
 				}
 			}
@@ -185,21 +197,25 @@ public class PageUploaderImpl
 		
 	} 
     
-    private void uploadSourceZip(File zipFile, int projectId, String pageName, String endPoint, String apiKey){
-    	CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(endPoint, 
-				"1.16", apiKey);
+    private void uploadSourceZip(File zipFile, int projectId, String pageName, CloudwordsCustomerClient customerClient){
+    	//CloudwordsCustomerAPI customerClient = new CloudwordsCustomerClient(endPoint, 
+		//		"1.16", apiKey);
     	
+    	String cqPageName = pageName.replace(".xml", ".xlf");
 		try {
 									
 			// match xliff name
 			List<SourceDocument> docs = customerClient.getSourceDocuments(projectId);
+			LOG.error("LQ == doc size is: " + docs.size());
 			for(SourceDocument doc : docs){
-				LOG.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
-				if(doc.getXliff().getFilename().equals(pageName)){
+				if(doc.getXliff()!= null) LOG.error("LQ == cw xliff name is:" + doc.getXliff().getFilename());
+				//LOG.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
+				if(doc.getXliff()!= null && doc.getXliff().getFilename().equals(cqPageName)){
 					LOG.error("find match, uploading zip now");
+					LOG.error("LQ == project id:" + projectId + " doc id:" + doc.getId() );
 					customerClient.addSourceDocumentPreview(projectId, doc.getId(), zipFile);
 				}else{
-					LOG.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  pageName);
+					LOG.warn("not match, from cw: " + doc.getId() + "  , from cq: " +  pageName);
 					continue;
 				}
 			}
