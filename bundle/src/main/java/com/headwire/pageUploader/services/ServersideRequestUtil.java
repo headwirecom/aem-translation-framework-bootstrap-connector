@@ -1,7 +1,7 @@
 package com.headwire.pageUploader.services;
 
-import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -9,9 +9,7 @@ import java.util.zip.GZIPInputStream;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -22,6 +20,7 @@ import org.apache.jackrabbit.util.Text;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.api.servlets.HttpConstants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +30,7 @@ import org.slf4j.LoggerFactory;
 public class ServersideRequestUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ServersideRequestUtil.class);
 	private ServersideRequestUtil() {};
-	private static Session classAdminSession = null;
-	private static Session classSession2 = null;
-	
+		
 	/**
 	 * Does a get request on url and returns body as a string. Be careful about large requests.
 	 *
@@ -81,10 +78,8 @@ public class ServersideRequestUtil {
 	 * @return The response body as a stream
 	 */
 	public static InputStream doRequestAsStream(ResourceResolver resolver, ResourceResolverFactory resolverFactory, String url, int timeout) throws Exception {
-		LOG.error("LQ == url is:" + url);
 		HttpMethod request = doRequestHelper(resolver, resolverFactory, HttpConstants.METHOD_GET, url, null, timeout);
 		InputStream is = request.getResponseBodyAsStream();
-		if(is == null) LOG.error("LQ == is is null");
 		if(request.getResponseHeader("Content-Encoding") != null &&
 				request.getResponseHeader("Content-Encoding").getValue().equals("gzip"))
 		{
@@ -138,10 +133,10 @@ public class ServersideRequestUtil {
 					param.put(ResourceResolverFactory.SUBSERVICE, "readService");
 					param.put(ResourceResolverFactory.USER, "cloudwords-service");
 					adminSession = resolverFactory.getServiceResourceResolver(param).adaptTo(Session.class);
-					LOG.error("LQ == adminsession user id is:" + adminSession.getUserID());
+					//LOG.error("LQ == adminsession user id is:" + adminSession.getUserID());
 				}
 			} catch (Exception e) {
-	            LOG.error("Error getting admin session", e);
+	            //LOG.error("Error getting admin session", e);
 	        }
 			
 			SimpleCredentials credentials = new SimpleCredentials("admin", new char[0]);
@@ -154,17 +149,17 @@ public class ServersideRequestUtil {
 			
 			try {
 				session2 = adminSession.impersonate(credentials);
-				for(String attrName : credentials.getAttributeNames())
-				LOG.error("attrName: " + attrName + " value: " + credentials.getAttribute(attrName));
+				//for(String attrName : credentials.getAttributeNames())
+				//LOG.error("attrName: " + attrName + " value: " + credentials.getAttribute(attrName));
 			} catch (Exception e) {
 			} finally {
 				try {
-					LOG.error("Credential after session 2 is: " + credentials.getAttribute(".token"));
+					//LOG.error("Credential after session 2 is: " + credentials.getAttribute(".token"));
 					String value = Text.escape(String.format("%s:%s:%s", new Object[] {repositoryId, credentials.getAttribute(".token"), workspaceId}));
 					value = String.format("login-token=%s", new Object[] { value });
 					token = value;
 				} catch (Exception e) {
-	                LOG.error("Error setting login cookie", e);
+	                //LOG.error("Error setting login cookie", e);
 	            }
 
 				if (session2 != null)
@@ -176,7 +171,7 @@ public class ServersideRequestUtil {
 			
 			
 //		}
-		LOG.error("LQ == token is:" + token);
+		//LOG.error("LQ == token is:" + token);
 		return token;
 		
 	} 
