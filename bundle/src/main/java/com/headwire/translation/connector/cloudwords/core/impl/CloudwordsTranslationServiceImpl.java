@@ -41,7 +41,6 @@ import com.adobe.granite.translation.api.TranslationState;
 //import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 import com.adobe.granite.translation.core.common.AbstractTranslationService;
 import com.adobe.granite.translation.core.common.TranslationResultImpl;
-
 import com.cloudwords.api.client.CloudwordsCustomerClient;
 import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.CloudwordsFile;
@@ -63,7 +62,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 
     private CloudwordsTranslationCloudConfig cloudwordsTranslationCloudConfig;
     
-    private CloudwordsTranslationCacheImpl translationCache;
+    //private CloudwordsTranslationCacheImpl translationCache;
     
     private PageUploaderImpl pageUploaderImpl;
     
@@ -99,7 +98,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
-			CloudwordsTranslationCacheImpl cache,
+			//CloudwordsTranslationCacheImpl cache,
 			PageUploaderImpl pageUploader,
 			ResourceResolver resourceResolver
 			//BootstrapTmsService bootstrapTmsService
@@ -122,7 +121,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 //    	log.trace("RR: ==== attribution: "+attribution);
 //    	log.trace("RR: ==== config path: "+translationCloudConfigRootPath);
         cloudwordsTranslationCloudConfig = cwtc;
-        translationCache = cache;
+        //translationCache = cache;
         pageUploaderImpl = pageUploader;
         this.previewPath = previewPath;
         //this.bootstrapTmsService = bootstrapTmsService;
@@ -707,6 +706,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     public TranslationStatus getTranslationObjectStatus(String strTranslationJobID,
         TranslationObject translationObject) throws TranslationException {
     	log.trace("getTranslationObjectState: "+strTranslationJobID+","+translationObject);
+    	
+    	CloudwordsCustomerClient client = getClient();
     	//log.error("project id is:" + strTranslationJobID);
         //log.error("translationObject src path is:" + translationObject.getTranslationObjectSourcePath());
         
@@ -726,8 +727,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	}*/
     	
     	try {
-			//List<TranslatedDocument> translations = getClient().getTranslatedDocuments(getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID))); // Todo: target language needs to be passed in as Param
-			List<TranslatedDocument> translations = translationCache.getTranslatedDocumentsCache(getClient(), strTranslationJobID, getProjectTargetLanguage(strTranslationJobID));
+			List<TranslatedDocument> translations = client.getTranslatedDocuments(getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID))); // Todo: target language needs to be passed in as Param
+			//List<TranslatedDocument> translations = translationCache.getTranslatedDocumentsCache(getClient(), strTranslationJobID, getProjectTargetLanguage(strTranslationJobID));
     		//log.error("LQ == translation doc size: " + translations.size());
 			for (TranslatedDocument doc : translations) {
 				CloudwordsFile file = doc.getXliff();
@@ -753,7 +754,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			}
 			// When no match found, let's return project status instead, only "in_translation" will return
 			log.trace("now return project status:");
-			String cwProjectStatus = translationCache.getProjectStatusCache(getClient(), strTranslationJobID);
+			//String cwProjectStatus = translationCache.getProjectStatusCache(getClient(), strTranslationJobID);
+			String cwProjectStatus = client.getProject(Integer.parseInt(strTranslationJobID)).getStatus().getCode();
 			if(getTranslationJobStatus(cwProjectStatus).equals(TranslationStatus.TRANSLATION_IN_PROGRESS)){
 				return getTranslationJobStatus(cwProjectStatus);
 			}
@@ -761,6 +763,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			log.error("NumberFormatException: {}", e );
 		} catch (IllegalStateException e) {
 			log.error("IllegalStateException: {}", e);
+		} catch (CloudwordsClientException e) {
+			log.error("CloudwordsClientException: {}", e);
 		} 
         return null;
     }

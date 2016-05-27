@@ -70,8 +70,8 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     @Reference 
     CryptoSupport cryptoSupport;
     
-    @Reference
-    CloudwordsTranslationCacheImpl cloudwordsTranslationCache;
+    //@Reference
+    //CloudwordsTranslationCacheImpl cloudwordsTranslationCache;
     
     @Reference
     PageUploaderImpl pageUploaderImpl;
@@ -117,7 +117,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         	closeResourceResolver(rr);
         	getResourceResolver(resourceResolverFactory);
         }
-        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache, pageUploaderImpl, rr);
+        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig,  pageUploaderImpl, rr);
     }
 
     @Override
