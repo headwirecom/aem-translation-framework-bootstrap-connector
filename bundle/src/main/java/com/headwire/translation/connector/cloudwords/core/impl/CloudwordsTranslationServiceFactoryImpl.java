@@ -114,7 +114,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         }
         if(!rr.isLive()){
         	log.error("LQ == rr is not live");
-        	rr.close();
+        	closeResourceResolver(rr);
         	getResourceResolver(resourceResolverFactory);
         }
         return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache, pageUploaderImpl, rr);
@@ -164,7 +164,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     }
     
     
-    protected ResourceResolver getResourceResolver(ResourceResolverFactory resourceResolverFactory){
+    private synchronized ResourceResolver getResourceResolver(ResourceResolverFactory resourceResolverFactory){
     	log.error("LQ == Starting function: getResourceResolver");
 		ResourceResolver resourceResolver = null;
 		Map<String, Object> param = new HashMap<String, Object>();
@@ -181,6 +181,14 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
 				e.printStackTrace();
 			} 
 		return resourceResolver;
-		}
+	}
+    
+   
+    private synchronized void closeResourceResolver(ResourceResolver resourceResolver){ 
+        //if(null!=resourceResolver && resourceResolver.isLive()){ 
+          resourceResolver.close(); 
+        //} 
+    } 
+
 
 }
