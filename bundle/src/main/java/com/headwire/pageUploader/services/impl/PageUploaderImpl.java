@@ -63,17 +63,15 @@ public class PageUploaderImpl
 	@Override
 	public void uploadPage(ResourceResolver rr, int projectId, String targetLanguageCode, String translationDataEntry, String pagePath, CloudwordsCustomerClient customerClient) {
 		
-		LOG.error("LQ: Start uploading translated page zip to CW....");
-		LOG.error("LQ: lang code : " + targetLanguageCode + " translationDataEntry : " + translationDataEntry + " pagePath : " + pagePath);
+		LOG.trace("LQ: Start uploading translated page zip to CW....");
+		LOG.trace("LQ: lang code : " + targetLanguageCode + " translationDataEntry : " + translationDataEntry + " pagePath : " + pagePath);
 				
 		String pageName = pagePath.substring(pagePath.lastIndexOf("/")+1, pagePath.length());
         String pageFolderName = pagePath.replaceAll("/", "_");
         
-        LOG.error("LQ: pageName : " + pageName + " pageFolderName : " + pageFolderName);
+        LOG.trace("LQ: pageName : " + pageName + " pageFolderName : " + pageFolderName);
         String serverUrl = getProperty(CloudwordsConstants.AEM_BASE_URL,"");
-        //String serverUrl = "http://localhost:4502";
-        
-        LOG.error("LQ: Start uploading page zip to CW page path: " + pagePath);
+                
         // Retrieve html content of a page
         String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + "?wcmmode=disabled");
         		
@@ -108,14 +106,14 @@ public class PageUploaderImpl
 	}
 	
 	public void uploadSourcePage(ResourceResolver rr, int projectId, String translationDataEntry, String pagePath, CloudwordsCustomerClient customerClient){
-		LOG.error("LQ == temp folder:" + tempFolder);
-		LOG.error("LQ: Start uploading page zip to CW...");
+		
+		//LOG.trace("LQ: Start uploading page zip to CW...");
 		
 		String pageName = pagePath.substring(pagePath.lastIndexOf("/")+1, pagePath.length());
         String pageFolderName = pagePath.replaceAll("/", "_");
         String serverUrl = getProperty(CloudwordsConstants.AEM_BASE_URL,"");
-        //String serverUrl = "http://localhost:4502";
-        LOG.error("LQ: Start uploading page zip to CW... page path:" + serverUrl + pagePath + "?wcmmode=disabled");
+        
+        //LOG.error("LQ: Start uploading page zip to CW... page path:" + serverUrl + pagePath + "?wcmmode=disabled");
         // Retrieve html content of a page
         String htmlString = getPageHtml(rr, resourceResolverFactory, serverUrl + pagePath + "?wcmmode=disabled");
         //LOG.error("LQ: html string: " + htmlString);		
@@ -154,15 +152,12 @@ public class PageUploaderImpl
 		String htmlString = null;
 		try {
         	//htmlString = ServersideRequestUtil.doRequestAsString(rr, resourceResolverFactory, pageUrl);
-    		LOG.error("---------------------------------------111");
-        	InputStream is = ServersideRequestUtil.doRequestAsStream(rr, resourceResolverFactory, pageUrl);
-    		LOG.error("---------------------------------------222");
-			StringWriter writer = new StringWriter();
+    		InputStream is = ServersideRequestUtil.doRequestAsStream(rr, resourceResolverFactory, pageUrl);
+    		StringWriter writer = new StringWriter();
 			IOUtils.copy(is, writer, "UTF-8");
 			htmlString = writer.toString();
         } catch (Exception e) {
-        	LOG.error("LQ == getPageHtml error:" + e.getMessage());
-			e.printStackTrace();
+        	e.printStackTrace();
 		}
 		return htmlString;
 	}
@@ -176,14 +171,14 @@ public class PageUploaderImpl
 			
 			// todo, match xliff name
 			List<TranslatedDocument> docs = customerClient.getTranslatedDocuments(projectId, language);
-			LOG.error("LQ == my docs size is:" + docs.size());
+			//LOG.error("LQ == my docs size is:" + docs.size());
 			for(TranslatedDocument doc : docs){
 				//LOG.error("LQ == doc file name is:" + doc.getXliff().getFilename());
-				LOG.error("LQ == data entry is: " + cqPageName);
+				//LOG.error("LQ == data entry is: " + cqPageName);
 				if(doc.getXliff()!= null) LOG.error("LQ == cw xlif name is:" + doc.getXliff().getFilename());
 				if(doc.getXliff() != null && doc.getXliff().getFilename().equals(cqPageName)){
 					LOG.trace("find match, uploading zip now");
-					LOG.error("LQ == project id:" + projectId + " language: " + language + " doc id:" + doc.getId() );
+					//LOG.error("LQ == project id:" + projectId + " language: " + language + " doc id:" + doc.getId() );
 					customerClient.addTranslatedDocumentPreview(projectId, language, doc.getId(), zipFile);
 				}else{
 					LOG.warn("not match, from cw: " + doc.getSourceDocumentId() + "  , from cq: " +  translationDataEntry);
@@ -205,13 +200,13 @@ public class PageUploaderImpl
 									
 			// match xliff name
 			List<SourceDocument> docs = customerClient.getSourceDocuments(projectId);
-			LOG.error("LQ == doc size is: " + docs.size());
+			//LOG.error("LQ == doc size is: " + docs.size());
 			for(SourceDocument doc : docs){
-				if(doc.getXliff()!= null) LOG.error("LQ == cw xliff name is:" + doc.getXliff().getFilename());
+				//if(doc.getXliff()!= null) LOG.error("LQ == cw xliff name is:" + doc.getXliff().getFilename());
 				//LOG.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
 				if(doc.getXliff()!= null && doc.getXliff().getFilename().equals(cqPageName)){
-					LOG.error("find match, uploading zip now");
-					LOG.error("LQ == project id:" + projectId + " doc id:" + doc.getId() );
+					//LOG.error("find match, uploading zip now");
+					//LOG.error("LQ == project id:" + projectId + " doc id:" + doc.getId() );
 					customerClient.addSourceDocumentPreview(projectId, doc.getId(), zipFile);
 				}else{
 					LOG.warn("not match, from cw: " + doc.getId() + "  , from cq: " +  pageName);

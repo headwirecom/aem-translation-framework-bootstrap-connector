@@ -107,7 +107,6 @@ public class HtmlParserUtil {
         		  
         		  // if the script is: assets/etc/clientlibs/browsermap.js, need to comment out newUrl function
         		  if(scriptSrc.endsWith("browsermap.js")){
-        			  //LOG.error("in if now..............");
         			  jsString = jsString.replace("window.location = newURL;", "//window.location = newURL;");
         		  }
         		  
@@ -225,7 +224,6 @@ public class HtmlParserUtil {
 	 * @param pageFolderName the page folder name
 	 */
 	public static void saveTextFile(String text, String path, String fileName, String pageFolderName, String tempFolder){
-		LOG.error("LQ == file path:" + path + " file name:" + fileName);
 		try {
 			String filePath = null;
 			if(path.equals("")) {filePath = tempFolder + "/" + pageFolderName + "/";}

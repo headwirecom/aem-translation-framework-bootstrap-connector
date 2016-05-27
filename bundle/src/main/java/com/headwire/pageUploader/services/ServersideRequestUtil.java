@@ -126,17 +126,13 @@ public class ServersideRequestUtil {
 			Session adminSession = jcrSession;
 			try {
 				if (resolverFactory != null) {
-					//Map<String, Object> authMap = new HashMap<String, Object>();
-					//authMap.put(ResourceResolverFactory.USER_IMPERSONATION, "admin");
-					//adminSession = resolverFactory.getAdministrativeResourceResolver(authMap).adaptTo(Session.class);
 					Map<String, Object> param = new HashMap<String, Object>();
 					param.put(ResourceResolverFactory.SUBSERVICE, "readService");
 					param.put(ResourceResolverFactory.USER, "cloudwords-service");
 					adminSession = resolverFactory.getServiceResourceResolver(param).adaptTo(Session.class);
-					//LOG.error("LQ == adminsession user id is:" + adminSession.getUserID());
 				}
 			} catch (Exception e) {
-	            //LOG.error("Error getting admin session", e);
+	            e.printStackTrace();
 	        }
 			
 			SimpleCredentials credentials = new SimpleCredentials("admin", new char[0]);
@@ -149,17 +145,14 @@ public class ServersideRequestUtil {
 			
 			try {
 				session2 = adminSession.impersonate(credentials);
-				//for(String attrName : credentials.getAttributeNames())
-				//LOG.error("attrName: " + attrName + " value: " + credentials.getAttribute(attrName));
 			} catch (Exception e) {
 			} finally {
 				try {
-					//LOG.error("Credential after session 2 is: " + credentials.getAttribute(".token"));
 					String value = Text.escape(String.format("%s:%s:%s", new Object[] {repositoryId, credentials.getAttribute(".token"), workspaceId}));
 					value = String.format("login-token=%s", new Object[] { value });
 					token = value;
 				} catch (Exception e) {
-	                //LOG.error("Error setting login cookie", e);
+	                e.printStackTrace();
 	            }
 
 				if (session2 != null)
@@ -170,8 +163,6 @@ public class ServersideRequestUtil {
 			}
 			
 			
-//		}
-		//LOG.error("LQ == token is:" + token);
 		return token;
 		
 	} 

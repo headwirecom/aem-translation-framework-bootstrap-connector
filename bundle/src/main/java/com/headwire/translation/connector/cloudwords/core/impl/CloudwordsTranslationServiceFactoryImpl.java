@@ -94,7 +94,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     @Override
     public TranslationService createTranslationService(TranslationMethod translationMethod, String cloudConfigPath)
         throws TranslationException {
-        log.error("LQ == In function: getTranslationService()");
+        //log.error("LQ == In function: getTranslationService()");
         log.trace(" "+translationMethod);
         log.trace(" "+cloudConfigPath);
         
@@ -113,7 +113,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
             cloudwordsCloudConfg.decryptSecret(cryptoSupport);
         }
         if(!rr.isLive()){
-        	log.error("LQ == rr is not live");
+        	//log.error("LQ == rr is not live");
         	closeResourceResolver(rr);
         	getResourceResolver(resourceResolverFactory);
         }
@@ -144,7 +144,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     
     @Activate
     protected void activate(final ComponentContext ctx) {
-        log.error("LQ == Starting function: activate");
+        log.trace("LQ == Starting function: activate");
         final Dictionary<?, ?> properties = ctx.getProperties();
 
         factoryName = PropertiesUtil.toString(properties.get(TranslationServiceFactory.PROPERTY_TRANSLATION_FACTORY),"");
@@ -165,7 +165,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     
     
     private synchronized ResourceResolver getResourceResolver(ResourceResolverFactory resourceResolverFactory){
-    	log.error("LQ == Starting function: getResourceResolver");
+    	log.trace("LQ == Starting function: getResourceResolver");
 		ResourceResolver resourceResolver = null;
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put(ResourceResolverFactory.SUBSERVICE, "readService");
@@ -173,11 +173,10 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
 		
 			try {
 				resourceResolver = resourceResolverFactory.getServiceResourceResolver(param);
-				log.error("LQ == rr user id:" + resourceResolver.getUserID());
+				log.trace("LQ == rr user id:" + resourceResolver.getUserID());
 				Resource res = resourceResolver.getResource("/content/geometrixx");
-	            log.error("LQ == Resource : " + res.getPath());
+	            log.trace("LQ == Resource : " + res.getPath());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 		return resourceResolver;
