@@ -17,8 +17,8 @@
     <!-- ====================================================================== -->
     <artifactId>cloudwordsapi.ui.config</artifactId>
     <packaging>content-package</packaging>
-    <name>cloudwords - UI config</name>
-    <description>UI config for cloudwordsapi</description>
+    <name>cloudwords - Config</name>
+    <description>Runmode config for cloudwordsapi</description>
 
     <!-- <scm>
         <connection></connection>
