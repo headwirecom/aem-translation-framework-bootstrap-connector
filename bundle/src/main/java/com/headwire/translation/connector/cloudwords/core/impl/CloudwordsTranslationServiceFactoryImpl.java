@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.PropertyOption;
@@ -93,7 +94,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     @Override
     public TranslationService createTranslationService(TranslationMethod translationMethod, String cloudConfigPath)
         throws TranslationException {
-        log.trace("In function: getTranslationService()");
+        log.error("LQ == In function: getTranslationService()");
         log.trace(" "+translationMethod);
         log.trace(" "+cloudConfigPath);
         
@@ -111,8 +112,12 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
             previewPath = cloudwordsCloudConfg.getPreviewPath();
             cloudwordsCloudConfg.decryptSecret(cryptoSupport);
         }
-        
-        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache, pageUploaderImpl, getResourceResolver(resourceResolverFactory));
+        if(!rr.isLive()){
+        	log.error("LQ == rr is not live");
+        	rr.close();
+        	getResourceResolver(resourceResolverFactory);
+        }
+        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig, cloudwordsTranslationCache, pageUploaderImpl, rr);
     }
 
     @Override
@@ -137,6 +142,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     	}
     }
     
+    @Activate
     protected void activate(final ComponentContext ctx) {
         log.error("LQ == Starting function: activate");
         final Dictionary<?, ?> properties = ctx.getProperties();
@@ -147,7 +153,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         
         exportFormat = PropertiesUtil.toString(properties.get(CloudwordsConstants.EXPORT_FORMAT_FIELD), CloudwordsConstants.EXPORT_FORMAT_XML);
         
-        //rr = getResourceResolver(resourceResolverFactory);
+        rr = getResourceResolver(resourceResolverFactory);
         
         if (log.isTraceEnabled()) {
             log.trace("Activated TSF with the following:");
