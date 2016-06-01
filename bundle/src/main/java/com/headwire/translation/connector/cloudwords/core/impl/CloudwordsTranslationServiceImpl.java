@@ -316,6 +316,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	return null;
     }
 
+    // Translation Project status mapping between cloudwords and AEM
     private static HashMap<String, TranslationStatus> CODES = new HashMap<String, TranslationConstants.TranslationStatus>();
     {
     	CODES.put("configured_project_name", TranslationStatus.DRAFT);
@@ -335,14 +336,15 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	CODES.put("cancelled", TranslationStatus.CANCEL);
     }
     
-    // project status mapping between cloudwords and aem
+    // TranslationObject status mapping between cloudwords and AEM
     private static HashMap<String, TranslationStatus> translationObjectCodes = new HashMap<String, TranslationConstants.TranslationStatus>();
     {
     	translationObjectCodes.put("syncing", TranslationStatus.TRANSLATION_IN_PROGRESS);
     	translationObjectCodes.put("in_translation", TranslationStatus.TRANSLATION_IN_PROGRESS);
     	translationObjectCodes.put("in_revision", TranslationStatus.TRANSLATION_IN_PROGRESS);
     	//translationObjectCodes.put("delivered", TranslationStatus.TRANSLATED);
-    	translationObjectCodes.put("approved", TranslationStatus.TRANSLATED);
+    	//translationObjectCodes.put("approved", TranslationStatus.TRANSLATED);
+    	translationObjectCodes.put("in_review", TranslationStatus.TRANSLATED);
     }
     
     @Override
@@ -450,8 +452,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	try {
 			List<TranslatedDocument> translations = client.getTranslatedDocuments(getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID))); // Todo: target language needs to be passed in as Param
 			for (TranslatedDocument doc : translations) {
-			    log.debug("doc status is:" + doc.getStatus().getCode());
-			    if ("approved".equals(doc.getStatus().getCode())) {
+			    log.debug("LQ == doc status is:" + doc.getStatus().getCode());
+			    if ("in_review".equals(doc.getStatus().getCode())) {
 					CloudwordsFile file = doc.getXliff();
 					if(file == null) file = doc.getFile();
 					// image asset
@@ -691,7 +693,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     public TranslationStatus updateTranslationObjectState(String strTranslationJobID,
         TranslationObject translationObject, TranslationState state) throws TranslationException {
     	
-    	log.trace("in updateTranslationObjectState: "+strTranslationJobID+","+translationObject+","+state);
+    	log.trace("LQ == in updateTranslationObjectState: "+strTranslationJobID+","+translationObject+","+state);
     	
     	if (translationObject.getId().equals(EMPTY_TRANSLATION_OBJECT_ID)) {
     		//log.error("LQ == in updateTranslationObjectState:" + translationObject.getTitle());
@@ -708,17 +710,13 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	log.trace("getTranslationObjectState: "+strTranslationJobID+","+translationObject);
     	
     	CloudwordsCustomerClient client = getClient();
-    	//log.error("project id is:" + strTranslationJobID);
-        //log.error("translationObject src path is:" + translationObject.getTranslationObjectSourcePath());
+    	//log.error("translationObject src path is:" + translationObject.getTranslationObjectSourcePath());
         
         if (translationObject.getId().equals(EMPTY_TRANSLATION_OBJECT_ID)) {
         	return TranslationConstants.TranslationStatus.READY_FOR_REVIEW;
         }
         
-        // todo upload source preview package
-        //translationObject.get
-    	
-    	// TODO map, cloudwords to provide mapping
+        // TODO map, cloudwords to provide mapping
     	// null checking translationObject
     	//if(null == translationObject.getTranslationObjectSourcePath() || translationObject.getMimeType().startsWith("image")){
     	/*if(null == translationObject.getTranslationObjectSourcePath()){
@@ -740,14 +738,14 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 					//log.error("LQ == translation object:" + translationObject.getTranslationObjectSourcePath());
 					//log.error("LQ == cw doc status:" + doc.getStatus().getCode() + " : " + doc.getStatus().getDisplay() + " language is:" + getProjectTargetLanguage(strTranslationJobID));
 					// upload preview copy for translated pages
-					if(isPreviewEnabled && !isBinaryObject(translationObject) && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))&& doc.getStatus().getCode().equals("approved")) {
+					/*if(isPreviewEnabled && !isBinaryObject(translationObject) && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))&& doc.getStatus().getCode().equals("approved")) {
 			    		String sourcePath = getNonEmptySourcePath(translationObject);
 			    		String pagePath = sourcePath;
 			    		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
 			    		sourcePath = System.getProperty("java.io.tmpdir") + pageName;
 			    		//log.error("LQ == upload translated package: " + sourcePath);
 			    		pageUploaderImpl.uploadPage(rr, getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID)).getLanguageCode(), pageName, pagePath + ".html", getClient());
-			    	}
+			    	}*/
 					//log.error("LQq == object status:" + translationObjectCodes.get(doc.getStatus().getCode()));
 					return translationObjectCodes.get(doc.getStatus().getCode());
 				}
@@ -757,6 +755,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			//String cwProjectStatus = translationCache.getProjectStatusCache(getClient(), strTranslationJobID);
 			String cwProjectStatus = client.getProject(Integer.parseInt(strTranslationJobID)).getStatus().getCode();
 			if(getTranslationJobStatus(cwProjectStatus).equals(TranslationStatus.TRANSLATION_IN_PROGRESS)){
+				//log.error("LQ: project status is: " + getTranslationJobStatus(cwProjectStatus));
 				return getTranslationJobStatus(cwProjectStatus);
 			}
 		} catch (NumberFormatException e) {
@@ -807,10 +806,20 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     @Override
     public TranslationStatus[] getTranslationObjectsStatus(String strTranslationJobID,
         TranslationObject[] translationObjects) throws TranslationException {
+    	//log.error("LQ == in getTranslationObjects method..........");
     	List<TranslationStatus> statusList = new ArrayList<TranslationStatus>();
     	for(TranslationObject object : translationObjects){
     		//log.error("status: " + getTranslationObjectStatus(strTranslationJobID, object));
     		//log.error("object type: " +getTranslationObjectStatus(strTranslationJobID, object).getClass().getName());
+    		// Todo: upload translated document preview zip here
+    		if(isPreviewEnabled && !isBinaryObject(object) && (!object.getTitle().equals("ASSETMETADATA")) && (!object.getTitle().equals("TAGMETADATA"))&& getTranslationObjectStatus(strTranslationJobID, object) != null && getTranslationObjectStatus(strTranslationJobID, object).equals(TranslationConstants.TranslationStatus.TRANSLATED)) {
+	    		String sourcePath = getNonEmptySourcePath(object);
+	    		String pagePath = sourcePath;
+	    		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
+	    		sourcePath = System.getProperty("java.io.tmpdir") + pageName;
+	    		//log.error("LQ == upload translated package: " + sourcePath);
+	    		pageUploaderImpl.uploadPage(rr, getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID)).getLanguageCode(), pageName, pagePath + ".html", getClient());
+	    	}
     		statusList.add(getTranslationObjectStatus(strTranslationJobID, object));
     	}
         return statusList.toArray(new TranslationStatus[statusList.size()]);
