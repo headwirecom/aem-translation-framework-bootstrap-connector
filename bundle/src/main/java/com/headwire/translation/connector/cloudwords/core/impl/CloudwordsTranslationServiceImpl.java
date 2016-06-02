@@ -818,7 +818,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
 	    		sourcePath = System.getProperty("java.io.tmpdir") + pageName;
 	    		//log.error("LQ == upload translated package: " + sourcePath);
-	    		pageUploaderImpl.uploadPage(rr, getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID)).getLanguageCode(), pageName, pagePath + ".html", getClient());
+	    		//log.error("LQ = pageName: " + pageName + " pagePath: " + pagePath);
+	    		//pageUploaderImpl.uploadPage(rr, getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID)).getLanguageCode(), pageName, pagePath + ".html", getClient());
 	    	}
     		statusList.add(getTranslationObjectStatus(strTranslationJobID, object));
     	}
