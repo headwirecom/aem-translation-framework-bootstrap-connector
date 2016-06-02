@@ -71,20 +71,12 @@ public class TranslationCoreEventListener implements EventHandler {
     	
     	log.trace("LQ == now in handle event: " + event.getTopic());
     	
-    	cloudwordsCloudConfg =
-                (CloudwordsTranslationCloudConfig) cloudConfigUtil.getCloudConfigObjectFromPath(
-                    CloudwordsTranslationCloudConfig.class, CLOUD_CONFIG_PATH);
-            
-            String strServiceLabel = "";
-            String strServiceAttribute = "";
-            String previewPath = "";
-            
-            if (cloudwordsCloudConfg != null) {
-                strServiceLabel = cloudwordsCloudConfg.getServiceLabel();
-                strServiceAttribute = cloudwordsCloudConfg.getServiceAttribution();
-                previewPath = cloudwordsCloudConfg.getPreviewPath();
-                cloudwordsCloudConfg.decryptSecret(cryptoSupport);
-            }
+    	// cloud_config_path
+    	cloudwordsCloudConfg = (CloudwordsTranslationCloudConfig) cloudConfigUtil.getCloudConfigObjectFromPath(CloudwordsTranslationCloudConfig.class, CLOUD_CONFIG_PATH);
+        
+        if (cloudwordsCloudConfg != null) {
+               cloudwordsCloudConfg.decryptSecret(cryptoSupport);
+        } 
     	
     	// 1. Find node that having resourceType = translation_object
     	if(event.getProperty(RESOURCE_TYPE) != null && event.getProperty(RESOURCE_TYPE).equals(TRANSLATION_OBJECT)){
@@ -101,11 +93,7 @@ public class TranslationCoreEventListener implements EventHandler {
     			String translationStatus = property.get(TRNSLATION_STATUS, "");
     			String pagePath = property.get(TRANSLATION_PAGE_PATH, "");
     			String pageName = pagePath.replaceAll("/","_") + ".xml";
-    			log.debug("file type: " + fileType);
-    			log.debug("status: " +translationStatus);
-    			log.debug("page path: " + pagePath);
-    			log.debug("page name: " + pageName);
-    			
+    			   			
     			// 3. If translationStatus is ready_for_review, let's upload a page preview copy
     			if(fileType.equals(TRANSLATION_FILE_TYPE_PAGE) && translationStatus.equals(TRNSLATION_STATUS_READY)){
     				// let's get translation project id
@@ -113,8 +101,8 @@ public class TranslationCoreEventListener implements EventHandler {
     				//log.error("translationJob path is: " + translationJob.getPath());
     				ValueMap parentProperty = translationJob.getValueMap();
     				String cwTranslationJobId = parentProperty.get(TRANSLATION_OBJECT_ID, "");
-    				log.error("translation object id is: " + cwTranslationJobId);
-    				log.error("now uploading preview zip...");
+    				//log.error("translation object id is: " + cwTranslationJobId);
+    				log.trace("now uploading preview zip...");
     				pageUploaderImpl.uploadPage(rr, getIntFromNullableString(cwTranslationJobId), new Language(getProjectTargetLanguage(cwTranslationJobId)).getLanguageCode(), pageName, pagePath + ".html", getClient());
     			}
     			
@@ -138,9 +126,6 @@ public class TranslationCoreEventListener implements EventHandler {
 		
 		try {
 			resourceResolver = resourceResolverFactory.getServiceResourceResolver(param);
-			//log.error("LQ == rr user id:" + resourceResolver.getUserID());
-			Resource res = resourceResolver.getResource("/content/geometrixx");
-	        //log.error("LQ == Resource : " + res.getPath());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -156,7 +141,9 @@ public class TranslationCoreEventListener implements EventHandler {
         } 
     } 
     
-    
+    /*
+     * Get project target language
+     */
     private String getProjectTargetLanguage(String strTranslationJobID){
 		
 		CloudwordsCustomerClient client = getClient();
@@ -171,6 +158,9 @@ public class TranslationCoreEventListener implements EventHandler {
 		return null;
 	} 
     
+    /*
+     * Get cloudwords client
+     */
     public CloudwordsCustomerClient getClient() {
 		log.trace("creating cloudwords client");
 		
@@ -189,6 +179,9 @@ public class TranslationCoreEventListener implements EventHandler {
 		return client;
     }
     
+    /*
+     * Get cloudwords project id
+     */
     private int getIntFromNullableString(String value) {
 		if( value == null || value.trim().length() == 0) {
 			return -1;
