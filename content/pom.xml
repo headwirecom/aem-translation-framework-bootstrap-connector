@@ -119,6 +119,9 @@
 					<failOnError>true</failOnError>
                     <group>cloudwords Content Package</group>
                     <name>Cloudwords Translation Connector</name>
+                    <properties>
+						<acHandling>merge_preserve</acHandling>
+					</properties>
                     <embeddeds>
                         <embedded>
                             <groupId>com.headwire.cloudwords</groupId>
