@@ -47,7 +47,7 @@ import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationC
 	    @Property(name = TranslationServiceFactory.PROPERTY_TRANSLATION_FACTORY, value = "cloudwords",
 	            label = "Cloudwords Translation Factory Name", description = "Cloudwords"
 	                    + "Translation Factory Connector"),
-	    @Property(name=CloudwordsConstants.EXPORT_FORMAT_FIELD, label="Export Format",value="XLIFF 2.0",description="Please specify the format for exporting translation jobs",options={
+	    @Property(name=CloudwordsConstants.EXPORT_FORMAT_FIELD, label="Export Format",value="XML",description="Please specify the format for exporting translation jobs",options={
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XML, value = "XML"),
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XLIFF_1_2, value = "XLIFF 1.2"),
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XLIFF_2_0, value = "XLIFF 2.0")
