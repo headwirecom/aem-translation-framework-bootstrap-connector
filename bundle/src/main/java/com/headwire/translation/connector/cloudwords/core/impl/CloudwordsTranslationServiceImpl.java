@@ -575,27 +575,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    	
 	    	String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
 	    	
-	    	//if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))) {
-	    		// LQ: Adobe way of generating page preview files
-	    		/*
-	    		try {
-	    			ZipInputStream zipInputStream = translationObject.getTranslationObjectPreview();
-	    			if (zipInputStream != null) {
-	    				unzipFileFromStream(zipInputStream, unzippedPath);
-	    			} else {
-	    				log.error("Got null for zipInputStream for " + getObjectPath(translationObject));
-	    			}
-	    		} catch (FileNotFoundException e) {
-	    			log.error(e.getLocalizedMessage(), e);
-	    		} catch (IOException e) {
-	    			log.error(e.getLocalizedMessage(), e);
-	    		}	*/
-	    		
-	    		
-	    	//}
-	    	
-	    	
-	    	// add file to project
+	    	// add xliff file to cloudwords project
 	    	try {
 				SourceDocument source = getClient().addSourceDocument(getIntFromNullableString(strTranslationJobID), xliffFile);
 				// Remove temp xliffFile
