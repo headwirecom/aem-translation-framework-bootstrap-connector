@@ -3,4 +3,22 @@
     <filter root="/apps/cloudwords-connector"/>
     <filter root="/etc/cloudservices/cloudwords-translation" mode="update"/>
     <filter root="/home/users/system/cloudwords-service"/>
+    <filter root="/home/groups/cloudwords"/>
+    <filter root="/home/users/cloudwords"/>
+    <filter root="/content/projects">
+    	<exclude pattern="/content/projects/.*"/>
+    	<include pattern="/content/projects/rep:policy.*"/>
+    </filter>
+    <filter root="/content">
+    	<exclude pattern="/content/.*"/>
+    	<include pattern="/content/rep:policy.*"/>
+    </filter>
+    <filter root="/etc">
+    	<exclude pattern="/etc/.*"/>
+    	<include pattern="/etc/rep:policy.*"/>
+    </filter>
+    <filter root="/libs">
+    	<exclude pattern="/libs/.*"/>
+    	<include pattern="/libs/rep:policy.*"/>
+    </filter>
 </workspaceFilter>
