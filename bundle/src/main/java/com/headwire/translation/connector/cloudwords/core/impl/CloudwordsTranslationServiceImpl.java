@@ -528,20 +528,16 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	
     	// need to determine if it's a content that we need to convert from the adobe format to xliff or not, then upload it
         String tempFolder = System.getProperty("java.io.tmpdir"); 
-    	InputStream is = translationObject.getTranslationObjectInputStream();
+    	InputStream is = translationObject.getTranslationObjectXMLInputStream();
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
     	
     	
     	// Handle binary asset
     	try {
-    		// Get mimetype from TranslationObject
-    		//String mimeType = translationObject.getMimeType();
-    		
     		log.trace("path: {}, {}", sourcePath, translationObject.getMimeType());
     		if(isBinaryObject(translationObject)){
     			String srcPath = translationObject.getTranslationObjectSourcePath();
-    			//String imgName = toCWFileName(srcPath.substring(srcPath.lastIndexOf("/")+1, srcPath.length()));
     			String imgName = toCWFileName(srcPath);
     			log.trace("srcPath is:" + srcPath);
     			log.trace("image name is:" + imgName);
@@ -556,7 +552,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     			
 		} catch (CloudwordsClientException e) {
 			log.info(PROJECT_ID_PREFIX + strTranslationJobID + " Binary file upload error: {}", e);
-			//log.error("CloudwordsClientException: {}", e);
 		}
     	
     	
