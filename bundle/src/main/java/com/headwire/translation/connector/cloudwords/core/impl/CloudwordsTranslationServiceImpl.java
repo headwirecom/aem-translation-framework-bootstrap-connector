@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -528,7 +529,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	
     	// need to determine if it's a content that we need to convert from the adobe format to xliff or not, then upload it
         String tempFolder = System.getProperty("java.io.tmpdir"); 
-    	InputStream is = translationObject.getTranslationObjectXMLInputStream();
+    	//InputStream is = translationObject.getTranslationObjectXMLInputStream();
+    	InputStream is = translationObject.getTranslationObjectXLIFFInputStream("2.0");
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
     	
@@ -560,7 +562,18 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     		String pagePath = sourcePath;
     		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
     		sourcePath = tempFolder + pageName;
-	    	File xliffFile = XliffExporter.convertXmlToXliff(is, sourcePath, getProjectSourceLanguage(strTranslationJobID), getProjectTargetLanguage(strTranslationJobID));
+    		File xliffFile = null;
+    		OutputStream os;
+			try {
+				os = new FileOutputStream(xliffFile);
+				IOUtils.copy(is, os);
+				os.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}catch (IOException e) {
+				e.printStackTrace();
+			} 
+    		//File xliffFile = XliffExporter.convertXmlToXliff(is, sourcePath, getProjectSourceLanguage(strTranslationJobID), getProjectTargetLanguage(strTranslationJobID));
 	
 	    	// Do not upload xliff File if it's null, this happens when a tag metadata xliff doesn't have any trans units
 	    	if(null == xliffFile) { 
@@ -601,30 +614,11 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	}
     	
     	//String objectPath = bootstrapTmsService.uploadBootstrapTmsObject(strTranslationJobID, getObjectPath(translationObject), is, translationObject.getMimeType(), exportFormat);
-
-		
-		
-		//return objectPath;
+        //return objectPath;
 		return null;
     }
     
-    private String getObjectPath (TranslationObject translationObject){
-        
-        if(translationObject.getTranslationObjectSourcePath()!= null && !translationObject.getTranslationObjectSourcePath().isEmpty()){
-            return  translationObject.getTranslationObjectSourcePath();
-        }
-        else if(translationObject.getTitle().equals("TAGMETADATA")){
-            return TAG_METADATA;
-        }
-        else if(translationObject.getTitle().equals("ASSETMETADATA")){
-            return ASSET_METADATA;
-        } 
-        else if(translationObject.getTitle().equals("I18NCOMPONENTSTRINGDICT")){
-            return I18NCOMPONENTSTRINGDICT;
-        }
-        return null;
-    }    
-    
+      
     private InputStream getInputStream(InputStream inputStream, String pattern, String replacement) {
     	return SearchAndReplaceInputStreamUtil.searchAndReplace(inputStream, pattern, replacement);
     }
