@@ -135,7 +135,7 @@ public class ServersideRequestUtil {
 	            e.printStackTrace();
 	        }
 			
-			SimpleCredentials credentials = new SimpleCredentials("admin", new char[0]);
+			SimpleCredentials credentials = new SimpleCredentials("cloudwords-internal", new char[0]);
 			credentials.setAttribute(".token", "");
 			String repositoryId = adminSession.getRepository().getDescriptor("crx.cluster.id");
 			if (repositoryId == null)
@@ -179,9 +179,8 @@ public class ServersideRequestUtil {
 
 		HttpClient httpClient = new HttpClient(conMgr);
 		HttpMethod httpMethod = buildHttpMethod(requestMethod, url, requestEntity);
-		httpMethod.setRequestHeader("Authorization", "Basic Y2xvdWR3b3Jkcy1zZXJ2aWNlOg==");
-		//httpMethod.setRequestHeader("Authorization", "Basic Y2xvdWR3b3Jkc3VzZXI6Y2xvdWR3b3Jkcw==");
-		//httpMethod.setRequestHeader("Authorization", "Basic ZmxhdGVyczp3ZWxjb21lMQ==");
+		//httpMethod.setRequestHeader("Authorization", "Basic Y2xvdWR3b3Jkcy1zZXJ2aWNlOg=="); token for admin
+		httpMethod.setRequestHeader("Authorization", "Basic Y2xvdWR3b3Jkcy1pbnRlcm5hbDo="); /* token for cloudwords-internal user  */
 		httpMethod.setRequestHeader("Cookie", getToken(resolver, resolverFactory));
 		httpClient.executeMethod(httpMethod);
 			
