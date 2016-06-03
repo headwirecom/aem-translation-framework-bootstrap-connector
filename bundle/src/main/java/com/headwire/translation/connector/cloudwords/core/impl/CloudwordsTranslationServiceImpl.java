@@ -573,8 +573,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    		return EMPTY_TRANSLATION_OBJECT_ID;
 	    	}
 	    	
-	    	//String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
-	    	// Generate Preview Package
+	    	String unzippedPath = previewPath + File.separator + strTranslationJobID + File.separator + pageName.replaceAll(".xml", "");
+	    	
 	    	//if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))) {
 	    		// LQ: Adobe way of generating page preview files
 	    		/*
@@ -591,13 +591,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    			log.error(e.getLocalizedMessage(), e);
 	    		}	*/
 	    		
-	    		// LQ: headwire way of generating page preview files
-	    		//ResourceResolver rr = getResourceResolver(resourceResolverFactory);
-	    		//if(rr == null) log.error("LQ == rr is null");
-				//pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", getClient());
-	    		//rr.close();
 	    		
-	    		//log.error("LQ== preview package created for..........." + translationObject.getTitle());	
 	    	//}
 	    	
 	    	
@@ -610,9 +604,12 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		    	
 		    	// LQ: now upload a page preview package to cloudwords
 		    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))) {
-		    		//log.error("LQ== upload preview zip to cloudwords");
-		    		pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", getClient());
-		    		//uploadPreviewZip(getIntFromNullableString(strTranslationJobID),pageName, unzippedPath);
+		    		if(previewFormat.equals(CloudwordsConstants.PREVIEW_FORMAT_HEADWIRE)){
+		    			pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", getClient());
+		    		}
+		    		else if(previewFormat.equals(CloudwordsConstants.PREVIEW_FORMAT_ADOBE)){
+		    			uploadPreviewZip(getIntFromNullableString(strTranslationJobID),pageName, unzippedPath);
+		    		}
 		    	}
 				return ""+source.getId();
 				
