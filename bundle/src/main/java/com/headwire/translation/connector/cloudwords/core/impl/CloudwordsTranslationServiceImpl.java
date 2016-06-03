@@ -88,13 +88,15 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private Boolean isPreviewEnabled = false;
     
+    private String previewFormat = "";
+    
      
     //private BootstrapTmsService bootstrapTmsService;
     
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
 			Map<String, String> availableCategoryMap, String name,
-			String label, String attribution, String previewPath, Boolean isPreviewEnabled, String exportFormat,
+			String label, String attribution, String previewPath, Boolean isPreviewEnabled, String previewFormat,String exportFormat,
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
@@ -126,6 +128,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         this.previewPath = previewPath;
         //this.bootstrapTmsService = bootstrapTmsService;
         this.isPreviewEnabled = isPreviewEnabled;
+        this.previewFormat = previewFormat;
         this.exportFormat = exportFormat;
         this.rr = resourceResolver;
     }

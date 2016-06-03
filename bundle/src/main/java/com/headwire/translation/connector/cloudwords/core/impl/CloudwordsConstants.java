@@ -20,6 +20,15 @@ public class CloudwordsConstants {
 	/** The Constant PREVIEW_ENABLED. */
 	public static final String PREVIEW_ENABLED = "preview.enabled";
 	
+	/** The Constant PREVIEW_FORMAT. */
+	public static final String PREVIEW_FORMAT = "preview.format";
+	
+	/** The Constant PREVIEW_FORMAT_HEADWIRE. */
+	public static final String PREVIEW_FORMAT_HEADWIRE = "preview.format.headwire";
+	
+	/** The Constant PREVIEW_FORMAT_ADOBE. */
+	public static final String PREVIEW_FORMAT_ADOBE = "preview.format.adobe";
+	
 	/** The Constant AEM_BASE_URL. */
 	public static final String AEM_BASE_URL = "aemBaseUrl";
 	

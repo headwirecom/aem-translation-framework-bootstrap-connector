@@ -108,7 +108,6 @@ public class TranslationCoreEventListener implements EventHandler {
     			
     		}
     		
-    		
     		// Close resource resolver
     		closeResourceResolver(rr);
     	}

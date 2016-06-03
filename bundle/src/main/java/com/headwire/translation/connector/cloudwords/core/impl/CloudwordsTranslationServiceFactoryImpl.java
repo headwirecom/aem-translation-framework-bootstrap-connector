@@ -40,10 +40,14 @@ import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationC
 @Properties(value = {
 	    @Property(name = "service.description", value = "Cloudwords translation factory service"),
 	    @Property(name=CloudwordsConstants.PREVIEW_ENABLED, label="Enable Preview", boolValue=false, description="Preview Enabled for Translation Objects"),
+	    @Property(name=CloudwordsConstants.PREVIEW_FORMAT, label="Preview Format",value="headwire",description="Please specify the way the preview package gets created",options={
+	    		@PropertyOption(name = CloudwordsConstants.PREVIEW_FORMAT_HEADWIRE, value = "headwire"),
+	    		@PropertyOption(name = CloudwordsConstants.PREVIEW_FORMAT_ADOBE, value = "adobe")	
+	    }),
 	    @Property(name = TranslationServiceFactory.PROPERTY_TRANSLATION_FACTORY, value = "cloudwords",
 	            label = "Cloudwords Translation Factory Name", description = "Cloudwords"
 	                    + "Translation Factory Connector"),
-	    @Property(name=CloudwordsConstants.EXPORT_FORMAT_FIELD, label="Export Format",value="xml",description="Please specify the format for exporting translation jobs",options={
+	    @Property(name=CloudwordsConstants.EXPORT_FORMAT_FIELD, label="Export Format",value="XML",description="Please specify the format for exporting translation jobs",options={
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XML, value = "XML"),
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XLIFF_1_2, value = "XLIFF 1.2"),
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XLIFF_2_0, value = "XLIFF 2.0")
@@ -53,6 +57,8 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     TranslationServiceFactory {
 	
 	protected Boolean isPreviewEnabled;
+	
+	protected String previewFormat;
     
     protected String exportFormat;
     
@@ -117,7 +123,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         	closeResourceResolver(rr);
         	getResourceResolver(resourceResolverFactory);
         }
-        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig,  pageUploaderImpl, rr);
+        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, previewFormat,exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig,  pageUploaderImpl, rr);
     }
 
     @Override
@@ -150,6 +156,8 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         factoryName = PropertiesUtil.toString(properties.get(TranslationServiceFactory.PROPERTY_TRANSLATION_FACTORY),"");
 
         isPreviewEnabled = PropertiesUtil.toBoolean(properties.get(CloudwordsConstants.PREVIEW_ENABLED), false);
+        
+        previewFormat = PropertiesUtil.toString(properties.get(CloudwordsConstants.PREVIEW_FORMAT), "");
         
         exportFormat = PropertiesUtil.toString(properties.get(CloudwordsConstants.EXPORT_FORMAT_FIELD), CloudwordsConstants.EXPORT_FORMAT_XML);
         
