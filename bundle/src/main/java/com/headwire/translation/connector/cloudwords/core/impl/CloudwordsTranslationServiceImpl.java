@@ -478,7 +478,11 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 					    	//File temp2 = new File("c:/output/" + file.getFilename() + "_orig.xml"); 
 					    	//copyInputStreamToFile(getInputStream(Object.getTranslationObjectInputStream(),".null","." + targetLang), temp2);
 					    	//copyInputStreamToFile(XliffImporter.buildTranslatedObjectStream(getInputStream(Object.getTranslationObjectInputStream(),".null","." + targetLang),client.downloadFileFromMetadata(file),srcLang,targetLang),tempFile);
-					    	return XliffImporter.buildTranslatedObjectStream(getInputStream(Object.getTranslationObjectInputStream(),".null","." + targetLang),client.downloadFileFromMetadata(file),srcLang,targetLang);
+					    	if(exportFormat.equalsIgnoreCase(CloudwordsConstants.EXPORT_FORMAT_XML)){
+					    		return XliffImporter.buildTranslatedObjectStream(getInputStream(Object.getTranslationObjectInputStream(),".null","." + targetLang),client.downloadFileFromMetadata(file),srcLang,targetLang);
+					    	} else{
+					    		return client.downloadFileFromMetadata(file);
+					    	}
 					    	//return XliffImporter.buildTranslatedObjectStream(Object.getTranslationObjectInputStream(),client.downloadFileFromMetadata(file),srcLang,targetLang);
 					    }
 					}
@@ -529,8 +533,13 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	
     	// need to determine if it's a content that we need to convert from the adobe format to xliff or not, then upload it
         String tempFolder = System.getProperty("java.io.tmpdir"); 
-    	//InputStream is = translationObject.getTranslationObjectXMLInputStream();
-    	InputStream is = translationObject.getTranslationObjectXLIFFInputStream("2.0");
+        InputStream is = null;
+        if(exportFormat.equalsIgnoreCase(CloudwordsConstants.EXPORT_FORMAT_XML)){
+        	is = translationObject.getTranslationObjectXMLInputStream();
+        }
+        else{
+        	is = translationObject.getTranslationObjectXLIFFInputStream("2.0");
+        }
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
     	
@@ -563,18 +572,23 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
     		sourcePath = tempFolder + pageName;
     		File xliffFile = null;
-    		OutputStream os;
-			try {
-				os = new FileOutputStream(xliffFile);
-				IOUtils.copy(is, os);
-				os.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}catch (IOException e) {
-				e.printStackTrace();
-			} 
-    		//File xliffFile = XliffExporter.convertXmlToXliff(is, sourcePath, getProjectSourceLanguage(strTranslationJobID), getProjectTargetLanguage(strTranslationJobID));
-	
+    		
+			if(exportFormat.equalsIgnoreCase(CloudwordsConstants.EXPORT_FORMAT_XML)){
+				xliffFile = XliffExporter.convertXmlToXliff(is, sourcePath, getProjectSourceLanguage(strTranslationJobID), getProjectTargetLanguage(strTranslationJobID));
+			}
+			else{
+				OutputStream os;
+				try {
+					os = new FileOutputStream(xliffFile);
+					IOUtils.copy(is, os);
+					os.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}catch (IOException e) {
+					e.printStackTrace();
+				} 
+			}
+			
 	    	// Do not upload xliff File if it's null, this happens when a tag metadata xliff doesn't have any trans units
 	    	if(null == xliffFile) { 
 	    		log.debug("Xliff file is empty, don't upload to cloudwords"); 
