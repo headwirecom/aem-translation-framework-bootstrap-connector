@@ -1,8 +1,10 @@
 package com.headwire.pageUploader.services.impl;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -13,6 +15,8 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -25,6 +29,7 @@ import com.cloudwords.api.client.CloudwordsCustomerClient;
 import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.Language;
 import com.cloudwords.api.client.resources.Project;
+import com.headwire.translation.connector.cloudwords.core.impl.CloudwordsConstants;
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 
 
@@ -35,7 +40,8 @@ import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationC
 @Service(value = EventHandler.class)
 @Properties({
     @Property(name = EventConstants.EVENT_TOPIC, value = {SlingConstants.TOPIC_RESOURCE_CHANGED}),
-    @Property(name = EventConstants.EVENT_FILTER, value = "(path=/content/projects/*)")
+    @Property(name = EventConstants.EVENT_FILTER, value = "(path=/content/projects/*)"),
+    @Property(name = CloudwordsConstants.CLOUD_CONFIG_PATH, value = "/etc/cloudservices/cloudwords-translation/cloudwords_config")
 })
 public class TranslationCoreEventListener implements EventHandler {
 	private static final Logger log = LoggerFactory.getLogger(TranslationCoreEventListener.class);
@@ -63,7 +69,7 @@ public class TranslationCoreEventListener implements EventHandler {
 	private static final String TRNSLATION_STATUS = "translationStatus";
 	private static final String TRNSLATION_STATUS_READY = "READY_FOR_REVIEW";
 	private static final String TRANSLATION_PAGE_PATH = "sourcePath";
-	private static final String CLOUD_CONFIG_PATH = "/etc/cloudservices/cloudwords-translation/cloudwordsconfig";
+	private String CLOUD_CONFIG_PATH = "";
 
 
     @Override
@@ -111,6 +117,18 @@ public class TranslationCoreEventListener implements EventHandler {
     		// Close resource resolver
     		closeResourceResolver(rr);
     	}
+    }
+    
+    @Activate
+    protected void activate(final ComponentContext ctx) {
+        log.trace("LQ == Starting function: activate");
+        final Dictionary<?, ?> properties = ctx.getProperties();
+                       
+        CLOUD_CONFIG_PATH = PropertiesUtil.toString(properties.get(CloudwordsConstants.CLOUD_CONFIG_PATH),"");
+        
+        if (log.isTraceEnabled()) {
+            log.trace("Cloud Config Path: {}", CLOUD_CONFIG_PATH);
+        }
     }
     
     /*
@@ -161,7 +179,7 @@ public class TranslationCoreEventListener implements EventHandler {
      * Get cloudwords client
      */
     public CloudwordsCustomerClient getClient() {
-		log.trace("creating cloudwords client");
+		log.error("lq == creating cloudwords client");
 		
 		String apiKey = null;
 		String endPoint = null;
@@ -170,8 +188,8 @@ public class TranslationCoreEventListener implements EventHandler {
 			apiKey = cloudwordsCloudConfg.getApiKey();
 			endPoint = cloudwordsCloudConfg.getEndpoint();
 		}
-		log.trace("apikey  : {}", apiKey);
-		log.trace("endpoint: {}", endPoint);
+		log.error("apikey  : {}", apiKey);
+		log.error("endpoint: {}", endPoint);
 		
 		CloudwordsCustomerClient client = new CloudwordsCustomerClient(endPoint, "1.20", apiKey);
 

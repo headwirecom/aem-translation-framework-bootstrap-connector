@@ -32,4 +32,7 @@ public class CloudwordsConstants {
 	/** The Constant AEM_BASE_URL. */
 	public static final String AEM_BASE_URL = "aemBaseUrl";
 	
+	/** The Constant CLOUD_CONFIG_PATH. */
+	public static final String CLOUD_CONFIG_PATH = "cloudConfigPath";
+	
 }
