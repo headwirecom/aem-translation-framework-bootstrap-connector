@@ -77,12 +77,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private static final String PROJECT_ID_PREFIX = "CW_";
     
-    private static final String TAG_METADATA = "/tag-metadata";
-    
-    private static final String ASSET_METADATA = "/asset-metadata";
-
-    private static final String I18NCOMPONENTSTRINGDICT = "/i18n-dictionary";
-    
     private String exportFormat = CloudwordsConstants.EXPORT_FORMAT_XML;
     
     private String previewPath = "";
@@ -92,8 +86,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     private String previewFormat = "";
     
      
-    //private BootstrapTmsService bootstrapTmsService;
-    
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
 			Map<String, String> availableCategoryMap, String name,
@@ -104,7 +96,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			//CloudwordsTranslationCacheImpl cache,
 			PageUploaderImpl pageUploader,
 			ResourceResolver resourceResolver
-			//BootstrapTmsService bootstrapTmsService
 			) {
 		super(availableLanguageMap, 
 				availableCategoryMap, 
@@ -127,7 +118,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         //translationCache = cache;
         pageUploaderImpl = pageUploader;
         this.previewPath = previewPath;
-        //this.bootstrapTmsService = bootstrapTmsService;
         this.isPreviewEnabled = isPreviewEnabled;
         this.previewFormat = previewFormat;
         this.exportFormat = exportFormat;
@@ -347,7 +337,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	translationObjectCodes.put("in_translation", TranslationStatus.TRANSLATION_IN_PROGRESS);
     	translationObjectCodes.put("in_revision", TranslationStatus.TRANSLATION_IN_PROGRESS);
     	//translationObjectCodes.put("delivered", TranslationStatus.TRANSLATED);
-    	//translationObjectCodes.put("approved", TranslationStatus.TRANSLATED);
     	translationObjectCodes.put("in_review", TranslationStatus.TRANSLATED);
     }
     
