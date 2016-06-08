@@ -39,9 +39,9 @@ import com.adobe.granite.translation.api.TranslationResult;
 import com.adobe.granite.translation.api.TranslationScope;
 import com.adobe.granite.translation.api.TranslationService;
 import com.adobe.granite.translation.api.TranslationState;
-//import com.adobe.granite.translation.bootstrap.tms.core.BootstrapTmsService;
 import com.adobe.granite.translation.core.common.AbstractTranslationService;
 import com.adobe.granite.translation.core.common.TranslationResultImpl;
+
 import com.cloudwords.api.client.CloudwordsCustomerClient;
 import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.CloudwordsFile;
@@ -50,6 +50,7 @@ import com.cloudwords.api.client.resources.Language;
 import com.cloudwords.api.client.resources.Project;
 import com.cloudwords.api.client.resources.SourceDocument;
 import com.cloudwords.api.client.resources.TranslatedDocument;
+
 import com.headwire.translation.connector.cloudwords.core.CloudwordsAware;
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 import com.headwire.xliff.util.FileUtil;
@@ -77,6 +78,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private static final String PROJECT_ID_PREFIX = "CW_";
     
+    private static final String IN_REVIEW_STATUS = "in_review";
+    
     private String exportFormat = CloudwordsConstants.EXPORT_FORMAT_XML;
     
     private String previewPath = "";
@@ -84,6 +87,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     private Boolean isPreviewEnabled = false;
     
     private String previewFormat = "";
+    
+    
     
      
     public CloudwordsTranslationServiceImpl(
@@ -439,14 +444,13 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	
     	// Get translated xliff from CW, and converts it to an InputStream
     	//log.error("LQ == getTranslatedObject("+PROJECT_ID_PREFIX+strTranslationJobID+", "+Object.getTitle()+")");
-    	
     	CloudwordsCustomerClient client = getClient();
     	
     	try {
 			List<TranslatedDocument> translations = client.getTranslatedDocuments(getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID))); // Todo: target language needs to be passed in as Param
 			for (TranslatedDocument doc : translations) {
-			    log.debug("LQ == doc status is:" + doc.getStatus().getCode());
-			    if ("in_review".equals(doc.getStatus().getCode())) {
+			    // return translated doc object when its status = in_review
+			    if ((doc.getStatus().getCode()).equalsIgnoreCase(IN_REVIEW_STATUS)) {
 					CloudwordsFile file = doc.getXliff();
 					if(file == null) file = doc.getFile();
 					// image asset
@@ -474,7 +478,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 					    		// todo, return cloudwords translated xliff file when adobe side implementation is ready
 					    		//return client.downloadFileFromMetadata(file);
 					    	}
-					    	//return XliffImporter.buildTranslatedObjectStream(Object.getTranslationObjectInputStream(),client.downloadFileFromMetadata(file),srcLang,targetLang);
 					    }
 					}
 				}
@@ -782,21 +785,10 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     @Override
     public TranslationStatus[] getTranslationObjectsStatus(String strTranslationJobID,
         TranslationObject[] translationObjects) throws TranslationException {
-    	//log.error("LQ == in getTranslationObjects method..........");
     	List<TranslationStatus> statusList = new ArrayList<TranslationStatus>();
     	for(TranslationObject object : translationObjects){
-    		//log.error("status: " + getTranslationObjectStatus(strTranslationJobID, object));
-    		//log.error("object type: " +getTranslationObjectStatus(strTranslationJobID, object).getClass().getName());
-    		// Todo: upload translated document preview zip here
-    		if(isPreviewEnabled && !isBinaryObject(object) && (!object.getTitle().equals("ASSETMETADATA")) && (!object.getTitle().equals("TAGMETADATA"))&& getTranslationObjectStatus(strTranslationJobID, object) != null && getTranslationObjectStatus(strTranslationJobID, object).equals(TranslationConstants.TranslationStatus.TRANSLATED)) {
-	    		String sourcePath = getNonEmptySourcePath(object);
-	    		String pagePath = sourcePath;
-	    		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
-	    		sourcePath = System.getProperty("java.io.tmpdir") + pageName;
-	    		//log.error("LQ == upload translated package: " + sourcePath);
-	    		//log.error("LQ = pageName: " + pageName + " pagePath: " + pagePath);
-	    		//pageUploaderImpl.uploadPage(rr, getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID)).getLanguageCode(), pageName, pagePath + ".html", getClient());
-	    	}
+    		//log.trace("status: " + getTranslationObjectStatus(strTranslationJobID, object));
+    		//log.trace("object type: " +getTranslationObjectStatus(strTranslationJobID, object).getClass().getName());
     		statusList.add(getTranslationObjectStatus(strTranslationJobID, object));
     	}
         return statusList.toArray(new TranslationStatus[statusList.size()]);
