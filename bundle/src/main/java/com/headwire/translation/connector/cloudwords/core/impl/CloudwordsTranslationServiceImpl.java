@@ -689,43 +689,19 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	log.trace("getTranslationObjectState: "+strTranslationJobID+","+translationObject);
     	
     	CloudwordsCustomerClient client = getClient();
-    	//log.error("translationObject src path is:" + translationObject.getTranslationObjectSourcePath());
-        
+    	        
         if (translationObject.getId().equals(EMPTY_TRANSLATION_OBJECT_ID)) {
         	return TranslationConstants.TranslationStatus.READY_FOR_REVIEW;
         }
         
-        // TODO map, cloudwords to provide mapping
-    	// null checking translationObject
-    	//if(null == translationObject.getTranslationObjectSourcePath() || translationObject.getMimeType().startsWith("image")){
-    	/*if(null == translationObject.getTranslationObjectSourcePath()){
-    		log.warn("translationObject path is null or empty, or the object is an asset");
-    		return TranslationStatus.READY_FOR_REVIEW;
-    	}*/
-    	
-    	try {
+        try {
 			List<TranslatedDocument> translations = client.getTranslatedDocuments(getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID))); // Todo: target language needs to be passed in as Param
-			//List<TranslatedDocument> translations = translationCache.getTranslatedDocumentsCache(getClient(), strTranslationJobID, getProjectTargetLanguage(strTranslationJobID));
-    		//log.error("LQ == translation doc size: " + translations.size());
 			for (TranslatedDocument doc : translations) {
 				CloudwordsFile file = doc.getXliff();
 				// in case the file is not xliff format
 				if(file == null) file = doc.getFile();
 				//log.debug("doc file name is:" + file.getFilename());
 				if(isTranslatedXliff(file, translationObject) || isTranslatedAsset(file, translationObject)){
-					// to do: map cw doc status to 
-					//log.error("LQ == translation object:" + translationObject.getTranslationObjectSourcePath());
-					//log.error("LQ == cw doc status:" + doc.getStatus().getCode() + " : " + doc.getStatus().getDisplay() + " language is:" + getProjectTargetLanguage(strTranslationJobID));
-					// upload preview copy for translated pages
-					/*if(isPreviewEnabled && !isBinaryObject(translationObject) && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))&& doc.getStatus().getCode().equals("approved")) {
-			    		String sourcePath = getNonEmptySourcePath(translationObject);
-			    		String pagePath = sourcePath;
-			    		String pageName = sourcePath.replaceAll("/","_") + ".xml";	
-			    		sourcePath = System.getProperty("java.io.tmpdir") + pageName;
-			    		//log.error("LQ == upload translated package: " + sourcePath);
-			    		pageUploaderImpl.uploadPage(rr, getIntFromNullableString(strTranslationJobID), new Language(getProjectTargetLanguage(strTranslationJobID)).getLanguageCode(), pageName, pagePath + ".html", getClient());
-			    	}*/
-					//log.error("LQq == object status:" + translationObjectCodes.get(doc.getStatus().getCode()));
 					return translationObjectCodes.get(doc.getStatus().getCode());
 				}
 			}
@@ -734,7 +710,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			//String cwProjectStatus = translationCache.getProjectStatusCache(getClient(), strTranslationJobID);
 			String cwProjectStatus = client.getProject(Integer.parseInt(strTranslationJobID)).getStatus().getCode();
 			if(getTranslationJobStatus(cwProjectStatus).equals(TranslationStatus.TRANSLATION_IN_PROGRESS)){
-				//log.error("LQ: project status is: " + getTranslationJobStatus(cwProjectStatus));
+				//log.trace("LQ==: project status is: " + getTranslationJobStatus(cwProjectStatus));
 				return getTranslationJobStatus(cwProjectStatus);
 			}
 		} catch (NumberFormatException e) {
