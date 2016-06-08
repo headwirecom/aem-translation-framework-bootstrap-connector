@@ -135,8 +135,7 @@ public class TranslationCoreEventListener implements EventHandler {
     	Resource jcrContent = resource.getParent().getParent().getParent();
     	ValueMap parentProperty = jcrContent.getValueMap();
 		String cloudConfigPath = parentProperty.get(CLOUD_CONFIG_PATH, "");
-		log.error("LQ cloudconfigpath is:" + cloudConfigPath);
-    	return cloudConfigPath;
+		return cloudConfigPath;
     }
     
     /*
@@ -187,8 +186,7 @@ public class TranslationCoreEventListener implements EventHandler {
      * Get cloudwords client
      */
     public CloudwordsCustomerClient getClient() {
-		log.error("lq == creating cloudwords client");
-		
+				
 		String apiKey = null;
 		String endPoint = null;
 		
@@ -196,8 +194,8 @@ public class TranslationCoreEventListener implements EventHandler {
 			apiKey = cloudwordsCloudConfg.getApiKey();
 			endPoint = cloudwordsCloudConfg.getEndpoint();
 		}
-		log.error("apikey  : {}", apiKey);
-		log.error("endpoint: {}", endPoint);
+		log.trace("apikey  : {}", apiKey);
+		log.trace("endpoint: {}", endPoint);
 		
 		CloudwordsCustomerClient client = new CloudwordsCustomerClient(endPoint, "1.20", apiKey);
 
