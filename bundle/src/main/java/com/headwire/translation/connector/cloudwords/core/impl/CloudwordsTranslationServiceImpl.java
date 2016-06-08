@@ -89,8 +89,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     private String previewFormat = "";
     
     
-    
-     
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
 			Map<String, String> availableCategoryMap, String name,
@@ -131,7 +129,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 
     @Override
     public Map<String, String> supportedLanguages() {
-    	//log.error("RR: ===== In Function: supportedLanguages");
+    	//log.trace("RR: ===== In Function: supportedLanguages");
         
         CloudwordsCustomerClient client = getClient();
         try {
@@ -169,35 +167,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	}
     }
     
-    private Set<String> getSourceLanguageCodes(){
-    	CloudwordsCustomerClient client = getClient();
-    	Set<String> sourceLanguageCodes = new HashSet<String>();
-    	List<Language> sourceLanguages;
-		try {
-			sourceLanguages = client.getSourceLanguages();
-			for (Language language : sourceLanguages) {
-				sourceLanguageCodes.add(language.getLanguageCode());
-			}
-		} catch (CloudwordsClientException e) {
-			log.error("problem checking languages", e);
-		}
-		return sourceLanguageCodes;
-    }
     
-    private Set<String> getTargetLanguageCodes(){
-    	CloudwordsCustomerClient client = getClient();
-    	Set<String> targetLanguageCodes = new HashSet<String>();
-    	List<Language> targetLanguages;
-		try {
-			targetLanguages = client.getTargetLanguages();
-			for (Language language : targetLanguages) {
-				targetLanguageCodes.add(language.getLanguageCode());
-			}
-		} catch (CloudwordsClientException e) {
-			e.printStackTrace();
-		}
-		return targetLanguageCodes;
-    }
 
     @Override
     public String detectLanguage(String toDetectSource, TranslationConstants.ContentType contentType)
@@ -315,35 +285,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	return null;
     }
 
-    // Translation Project status mapping between cloudwords and AEM
-    private static HashMap<String, TranslationStatus> CODES = new HashMap<String, TranslationConstants.TranslationStatus>();
-    {
-    	CODES.put("configured_project_name", TranslationStatus.DRAFT);
-    	CODES.put("configured_project_details", TranslationStatus.DRAFT);
-    	CODES.put("uploaded_source_materials", TranslationStatus.DRAFT);
-    	CODES.put("configured_bid_options", TranslationStatus.SUBMITTED);
-    	CODES.put("submitted_for_bids", TranslationStatus.SUBMITTED);
-    	CODES.put("waiting_for_bid_selection", TranslationStatus.SUBMITTED);
-    	CODES.put("bid_selection_expired", TranslationStatus.ERROR_UPDATE);
-    	CODES.put("in_translation", TranslationStatus.TRANSLATION_IN_PROGRESS);
-    	CODES.put("in_review", TranslationStatus.TRANSLATED);
-    	CODES.put("change_order_requested", TranslationStatus.REJECTED);
-    	CODES.put("all_languages_approved", TranslationStatus.APPROVED);
-    	CODES.put("in_cancellation_waiting_for_vendor", TranslationStatus.CANCEL);
-    	CODES.put("in_cancellation_waiting_for_customer", TranslationStatus.CANCEL);
-    	CODES.put("project_closed", TranslationStatus.COMPLETE);
-    	CODES.put("cancelled", TranslationStatus.CANCEL);
-    }
+       
     
-    // TranslationObject status mapping between cloudwords and AEM
-    private static HashMap<String, TranslationStatus> translationObjectCodes = new HashMap<String, TranslationConstants.TranslationStatus>();
-    {
-    	translationObjectCodes.put("syncing", TranslationStatus.TRANSLATION_IN_PROGRESS);
-    	translationObjectCodes.put("in_translation", TranslationStatus.TRANSLATION_IN_PROGRESS);
-    	translationObjectCodes.put("in_revision", TranslationStatus.TRANSLATION_IN_PROGRESS);
-    	//translationObjectCodes.put("delivered", TranslationStatus.TRANSLATED);
-    	translationObjectCodes.put("in_review", TranslationStatus.TRANSLATED);
-    }
     
     @Override
     public TranslationStatus updateTranslationJobState(String strTranslationJobID, TranslationState state)
@@ -357,52 +300,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	return null;
     }
     
-    private void uploadPreviewZip(int projectId, String pageName, String pageFilePath){
-    	
-    	// Step 1: Zip the entire folder
-		String folderPath = pageFilePath;
-		File fileToZip = new File(folderPath);
-		// create zip file
-		String zipFileName = System.getProperty("java.io.tmpdir")  + projectId + "_" + pageName.replaceAll(".xml", "") + ".zip";
-		//log.error("zip location: " + zipFileName);
-		File zipFile = new File(zipFileName);
-		//log.error("LQ== zip file path is:" + zipFile.getPath());
-		try {
-			ZipDirectoryUtil.zipFile(folderPath, zipFileName, true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		// Step 2: Upload Zip file to cloudwords site
-		uploadZip(zipFile, projectId, pageName);
-		
-		// Step 3: Remove zip file
-		ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
-		
-	}
     
-    private void uploadZip(File zipFile, int projectId, String pageName){
-    		
-    	try {
-									
-			// match xliff name
-			List<SourceDocument> docs = getClient().getSourceDocuments(projectId);
-			for(SourceDocument doc : docs){
-				//log.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
-				if(doc.getXliff().getFilename().equals(pageName)){
-					//log.error("find match, uploading zip now");
-					getClient().addSourceDocumentPreview(projectId, doc.getId(), zipFile);
-				}else{
-					log.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  pageName);
-					continue;
-				}
-			}
-			log.debug("Page zip uploaded to CW");
-		} catch (CloudwordsClientException e) {
-			log.error("CloudwordsClientException: {}", e);
-		}
-		
-	} 
     
     @Override
     public TranslationStatus getTranslationJobStatus(String cwProjectStatus) throws TranslationException {
@@ -499,27 +397,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         return null;
     }
     
-    private String toCWFileName(String assetName){
-    	String cwFileName = null;
-    	//String cwFileName = assetName.replaceAll("\\s", "\\{\\{whiteSpace\\}\\}");
-    	try {
-			cwFileName = java.net.URLEncoder.encode(assetName,"ISO-8859-1");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-        return cwFileName;
-    }
     
-    private String toAemFileName(String assetName){
-    	String aemFileName = null;
-    	//aemFileName = assetName.replaceAll("\\{\\{whiteSpace\\}\\}", " ");
-    	try {
-			aemFileName = java.net.URLDecoder.decode(assetName,"ISO-8859-1");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-    	return aemFileName;
-    }
 
     @Override
     public String uploadTranslationObject(String strTranslationJobID, TranslationObject translationObject)
@@ -629,44 +507,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     }
     
       
-    private InputStream getInputStream(InputStream inputStream, String pattern, String replacement) {
-    	return SearchAndReplaceInputStreamUtil.searchAndReplace(inputStream, pattern, replacement);
-    }
     
-    private String getNonEmptySourcePath (TranslationObject translationObject){
-    	
-    	if(translationObject.getTranslationObjectSourcePath()!= null && !translationObject.getTranslationObjectSourcePath().isEmpty()){
-    		return  translationObject.getTranslationObjectSourcePath();
-    	}
-    	else if(translationObject.getTitle().equals("TAGMETADATA")){
-    		return TAG_META_DATA_TITLE;
-    	}
-    	else if(translationObject.getTitle().equals("ASSETMETADATA")){
-    		return ASSET_META_DATA_TITLE;
-    	}
-    	
-    	return null;
-    	
-    	
-    }
-    
-    private void copyInputStreamToFile( InputStream in, File file ) {
-        try {
-        	log.trace("in copyInputStreamToFile start");
-        	
-            OutputStream out = new FileOutputStream(file);
-            byte[] buf = new byte[1024];
-            int len;
-            while((len=in.read(buf))>0){
-                out.write(buf,0,len);
-            }
-            out.close();
-            in.close();
-            log.trace("in copyInputStreamToFile end");
-        } catch (Exception e) {
-            log.error("Exception when copying inputstream to file: {}", e);
-        }
-    }
     
     @Override
     public TranslationStatus updateTranslationObjectState(String strTranslationJobID,
@@ -723,27 +564,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         return null;
     }
     
-    private boolean isTranslatedXliff(CloudwordsFile file, TranslationObject object){
-    	String sourcePath = getNonEmptySourcePath(object);
-    	// page and tag meta data
-    	if(file != null && file.getFilename().equals(sourcePath.replaceAll("/","_") + ".xlf")){
-			return true;
-		} else{
-			return false;
-		}
-    	
-    }
     
-    private boolean isTranslatedAsset(CloudwordsFile file, TranslationObject object){
-    	String srcPath = object.getTranslationObjectSourcePath();
-    	//if(toAemFileName(file.getFilename()).equals(srcPath.substring(srcPath.lastIndexOf("/")+1, srcPath.length()))){
-    	if(file!= null && toAemFileName(file.getFilename()).equals(srcPath)){
-			return true;
-		}else{
-			return false;
-		}
-    	
-    }
 
     @Override
     public TranslationStatus[] updateTranslationObjectsState(String strTranslationJobID,
@@ -809,12 +630,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		return client;
     }
 	
-	private String getCwLanguageCode(String strLanguage){
-		
-		String languageCode = strLanguage.replaceAll("_", "-");
-		return languageCode;
 	
-	}
 
 	private Project createBaseProject(String name, String strSourceLanguage,
 			String strTargetLanguage, String description, Date dueDate, CloudwordsCustomerClient client) throws CloudwordsClientException {
@@ -958,7 +774,206 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		}
 	}
 	
-	private static void unzipFileFromStream(ZipInputStream zipInputStream, String targetPath) throws IOException {
+	
+	
+	// Translation Project status mapping between cloudwords and AEM
+    private static HashMap<String, TranslationStatus> CODES = new HashMap<String, TranslationConstants.TranslationStatus>();
+    {
+    	CODES.put("configured_project_name", TranslationStatus.DRAFT);
+    	CODES.put("configured_project_details", TranslationStatus.DRAFT);
+    	CODES.put("uploaded_source_materials", TranslationStatus.DRAFT);
+    	CODES.put("configured_bid_options", TranslationStatus.SUBMITTED);
+    	CODES.put("submitted_for_bids", TranslationStatus.SUBMITTED);
+    	CODES.put("waiting_for_bid_selection", TranslationStatus.SUBMITTED);
+    	CODES.put("bid_selection_expired", TranslationStatus.ERROR_UPDATE);
+    	CODES.put("in_translation", TranslationStatus.TRANSLATION_IN_PROGRESS);
+    	CODES.put("in_review", TranslationStatus.TRANSLATED);
+    	CODES.put("change_order_requested", TranslationStatus.REJECTED);
+    	CODES.put("all_languages_approved", TranslationStatus.APPROVED);
+    	CODES.put("in_cancellation_waiting_for_vendor", TranslationStatus.CANCEL);
+    	CODES.put("in_cancellation_waiting_for_customer", TranslationStatus.CANCEL);
+    	CODES.put("project_closed", TranslationStatus.COMPLETE);
+    	CODES.put("cancelled", TranslationStatus.CANCEL);
+    }
+	
+    private Set<String> getSourceLanguageCodes(){
+    	CloudwordsCustomerClient client = getClient();
+    	Set<String> sourceLanguageCodes = new HashSet<String>();
+    	List<Language> sourceLanguages;
+		try {
+			sourceLanguages = client.getSourceLanguages();
+			for (Language language : sourceLanguages) {
+				sourceLanguageCodes.add(language.getLanguageCode());
+			}
+		} catch (CloudwordsClientException e) {
+			log.error("problem checking languages", e);
+		}
+		return sourceLanguageCodes;
+    }
+    
+    private Set<String> getTargetLanguageCodes(){
+    	CloudwordsCustomerClient client = getClient();
+    	Set<String> targetLanguageCodes = new HashSet<String>();
+    	List<Language> targetLanguages;
+		try {
+			targetLanguages = client.getTargetLanguages();
+			for (Language language : targetLanguages) {
+				targetLanguageCodes.add(language.getLanguageCode());
+			}
+		} catch (CloudwordsClientException e) {
+			e.printStackTrace();
+		}
+		return targetLanguageCodes;
+    }
+    
+    // TranslationObject status mapping between cloudwords and AEM
+    private static HashMap<String, TranslationStatus> translationObjectCodes = new HashMap<String, TranslationConstants.TranslationStatus>();
+    {
+    	translationObjectCodes.put("syncing", TranslationStatus.TRANSLATION_IN_PROGRESS);
+    	translationObjectCodes.put("in_translation", TranslationStatus.TRANSLATION_IN_PROGRESS);
+    	translationObjectCodes.put("in_revision", TranslationStatus.TRANSLATION_IN_PROGRESS);
+    	//translationObjectCodes.put("delivered", TranslationStatus.TRANSLATED);
+    	translationObjectCodes.put("in_review", TranslationStatus.TRANSLATED);
+    }
+    
+    private void uploadPreviewZip(int projectId, String pageName, String pageFilePath){
+    	
+    	// Step 1: Zip the entire folder
+		String folderPath = pageFilePath;
+		File fileToZip = new File(folderPath);
+		// create zip file
+		String zipFileName = System.getProperty("java.io.tmpdir")  + projectId + "_" + pageName.replaceAll(".xml", "") + ".zip";
+		//log.error("zip location: " + zipFileName);
+		File zipFile = new File(zipFileName);
+		//log.error("LQ== zip file path is:" + zipFile.getPath());
+		try {
+			ZipDirectoryUtil.zipFile(folderPath, zipFileName, true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// Step 2: Upload Zip file to cloudwords site
+		uploadZip(zipFile, projectId, pageName);
+		
+		// Step 3: Remove zip file
+		ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
+		
+	}
+    
+    private void uploadZip(File zipFile, int projectId, String pageName){
+    		
+    	try {
+									
+			// match xliff name
+			List<SourceDocument> docs = getClient().getSourceDocuments(projectId);
+			for(SourceDocument doc : docs){
+				//log.error("LQ== cw doc name is:" + doc.getXliff().getFilename());
+				if(doc.getXliff().getFilename().equals(pageName)){
+					//log.error("find match, uploading zip now");
+					getClient().addSourceDocumentPreview(projectId, doc.getId(), zipFile);
+				}else{
+					log.warn("not match, from cw: " + doc.getXliff().getFilename() + "  , from cq: " +  pageName);
+					continue;
+				}
+			}
+			log.debug("Page zip uploaded to CW");
+		} catch (CloudwordsClientException e) {
+			log.error("CloudwordsClientException: {}", e);
+		}
+		
+	} 
+	
+    private String toCWFileName(String assetName){
+    	String cwFileName = null;
+    	//String cwFileName = assetName.replaceAll("\\s", "\\{\\{whiteSpace\\}\\}");
+    	try {
+			cwFileName = java.net.URLEncoder.encode(assetName,"ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+        return cwFileName;
+    }
+    
+    private String toAemFileName(String assetName){
+    	String aemFileName = null;
+    	//aemFileName = assetName.replaceAll("\\{\\{whiteSpace\\}\\}", " ");
+    	try {
+			aemFileName = java.net.URLDecoder.decode(assetName,"ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+    	return aemFileName;
+    }
+    
+    private InputStream getInputStream(InputStream inputStream, String pattern, String replacement) {
+    	return SearchAndReplaceInputStreamUtil.searchAndReplace(inputStream, pattern, replacement);
+    }
+    
+    private String getNonEmptySourcePath (TranslationObject translationObject){
+    	
+    	if(translationObject.getTranslationObjectSourcePath()!= null && !translationObject.getTranslationObjectSourcePath().isEmpty()){
+    		return  translationObject.getTranslationObjectSourcePath();
+    	}
+    	else if(translationObject.getTitle().equals("TAGMETADATA")){
+    		return TAG_META_DATA_TITLE;
+    	}
+    	else if(translationObject.getTitle().equals("ASSETMETADATA")){
+    		return ASSET_META_DATA_TITLE;
+    	}
+    	
+    	return null;
+    	
+    	
+    }
+    
+    private void copyInputStreamToFile( InputStream in, File file ) {
+        try {
+        	log.trace("in copyInputStreamToFile start");
+        	
+            OutputStream out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+            }
+            out.close();
+            in.close();
+            log.trace("in copyInputStreamToFile end");
+        } catch (Exception e) {
+            log.error("Exception when copying inputstream to file: {}", e);
+        }
+    }
+    
+    private boolean isTranslatedXliff(CloudwordsFile file, TranslationObject object){
+    	String sourcePath = getNonEmptySourcePath(object);
+    	// page and tag meta data
+    	if(file != null && file.getFilename().equals(sourcePath.replaceAll("/","_") + ".xlf")){
+			return true;
+		} else{
+			return false;
+		}
+    	
+    }
+    
+    private boolean isTranslatedAsset(CloudwordsFile file, TranslationObject object){
+    	String srcPath = object.getTranslationObjectSourcePath();
+    	//if(toAemFileName(file.getFilename()).equals(srcPath.substring(srcPath.lastIndexOf("/")+1, srcPath.length()))){
+    	if(file!= null && toAemFileName(file.getFilename()).equals(srcPath)){
+			return true;
+		}else{
+			return false;
+		}
+    	
+    }
+    
+    private String getCwLanguageCode(String strLanguage){
+		
+		String languageCode = strLanguage.replaceAll("_", "-");
+		return languageCode;
+	
+	}
+    
+    private static void unzipFileFromStream(ZipInputStream zipInputStream, String targetPath) throws IOException {
 		File dirFile = new File(targetPath + File.separator);
 		if (!dirFile.exists()) {
 			dirFile.mkdirs();
@@ -998,8 +1013,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		}
 		zipInputStream.close();
 	}
-	
-	
 	
     
 }
