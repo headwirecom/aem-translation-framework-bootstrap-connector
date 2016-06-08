@@ -85,9 +85,6 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     @Reference
     private SlingRepository repository;
 
-    //@Reference
-    //BootstrapTmsService bootstrapTmsService;
-        
     private List<TranslationMethod> supportedTranslationMethods;
 
     public CloudwordsTranslationServiceFactoryImpl() {
@@ -100,7 +97,6 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
     @Override
     public TranslationService createTranslationService(TranslationMethod translationMethod, String cloudConfigPath)
         throws TranslationException {
-        //log.error("LQ == In function: getTranslationService()");
         log.trace(" "+translationMethod);
         log.trace(" "+cloudConfigPath);
         
@@ -119,7 +115,6 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
             cloudwordsCloudConfg.decryptSecret(cryptoSupport);
         }
         if(!rr.isLive()){
-        	//log.error("LQ == rr is not live");
         	closeResourceResolver(rr);
         	getResourceResolver(resourceResolverFactory);
         }
