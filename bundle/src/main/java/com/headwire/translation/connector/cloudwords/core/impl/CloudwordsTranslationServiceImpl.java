@@ -167,8 +167,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	}
     }
     
-    
-
     @Override
     public String detectLanguage(String toDetectSource, TranslationConstants.ContentType contentType)
         throws TranslationException {
@@ -285,9 +283,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	return null;
     }
 
-       
-    
-    
     @Override
     public TranslationStatus updateTranslationJobState(String strTranslationJobID, TranslationState state)
         throws TranslationException {
@@ -299,8 +294,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	}
     	return null;
     }
-    
-    
     
     @Override
     public TranslationStatus getTranslationJobStatus(String cwProjectStatus) throws TranslationException {
@@ -323,7 +316,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	return null;
     }
 
-    
     @Override
     public CommentCollection<Comment> getTranslationJobCommentCollection(String strTranslationJobID) {
         // TODO not supported yet
@@ -397,8 +389,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         return null;
     }
     
-    
-
     @Override
     public String uploadTranslationObject(String strTranslationJobID, TranslationObject translationObject)
         throws TranslationException {
@@ -409,13 +399,15 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         if(exportFormat.equalsIgnoreCase(CloudwordsConstants.EXPORT_FORMAT_XML)){
         	is = translationObject.getTranslationObjectXMLInputStream();
         }
-        else{
+        else if(exportFormat.equalsIgnoreCase(CloudwordsConstants.EXPORT_FORMAT_XLIFF_1_2)){
+        	is = translationObject.getTranslationObjectXLIFFInputStream("1.2");
+        }
+        else if (exportFormat.equalsIgnoreCase(CloudwordsConstants.EXPORT_FORMAT_XLIFF_2_0)){
         	// todo, need to pass in xliff version dynamically when 2.0 is supported by cloudwords
         	is = translationObject.getTranslationObjectXLIFFInputStream("1.2");
         }
     	    	
     	String sourcePath = getNonEmptySourcePath(translationObject);
-    	
     	
     	// Handle binary asset
     	try {
@@ -423,21 +415,20 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     		if(isBinaryObject(translationObject)){
     			String srcPath = translationObject.getTranslationObjectSourcePath();
     			String imgName = toCWFileName(srcPath);
-    			log.trace("srcPath is:" + srcPath);
-    			log.trace("image name is:" + imgName);
     			File imgFile = new File(tempFolder + imgName);
     			copyInputStreamToFile(is, imgFile);
     			SourceDocument source = getClient().addSourceDocument(getIntFromNullableString(strTranslationJobID), imgFile);
-    			log.trace("source document file name is:" + source.getFile().getFilename());
     			FileUtil.deleteTempFile(imgFile);
-    			log.info(PROJECT_ID_PREFIX + strTranslationJobID + " Binary file uploaded: " + tempFolder + imgName);
+    			log.trace("srcPath is:" + srcPath);
+    			log.trace("image name is:" + imgName);
+    			log.trace("source document file name is:" + source.getFile().getFilename());
+    			log.trace(PROJECT_ID_PREFIX + strTranslationJobID + " Binary file uploaded: " + tempFolder + imgName);
     			return "" + source.getId();
     		}
     			
 		} catch (CloudwordsClientException e) {
 			log.info(PROJECT_ID_PREFIX + strTranslationJobID + " Binary file upload error: {}", e);
 		}
-    	
     	
     	// Handle page
     	if( sourcePath != null) {
@@ -462,8 +453,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 				} 
 			}
 		
-			
-	    	// Do not upload xliff File if it's null, this happens when a tag metadata xliff doesn't have any trans units
+			// Do not upload xliff File if it's null, this happens when a tag metadata xliff doesn't have any trans units
 	    	if(null == xliffFile) { 
 	    		log.debug("Xliff file is empty, don't upload to cloudwords"); 
 	    		return EMPTY_TRANSLATION_OBJECT_ID;
@@ -501,13 +491,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 	    	FileUtil.deleteTempFile(xliffFile);
     	}
     	
-    	//String objectPath = bootstrapTmsService.uploadBootstrapTmsObject(strTranslationJobID, getObjectPath(translationObject), is, translationObject.getMimeType(), exportFormat);
-        //return objectPath;
-		return null;
+    	return null;
     }
-    
-      
-    
     
     @Override
     public TranslationStatus updateTranslationObjectState(String strTranslationJobID,
@@ -516,8 +501,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	log.trace("LQ == in updateTranslationObjectState: "+strTranslationJobID+","+translationObject+","+state);
     	
     	if (translationObject.getId().equals(EMPTY_TRANSLATION_OBJECT_ID)) {
-    		//log.error("LQ == in updateTranslationObjectState:" + translationObject.getTitle());
-            return TranslationConstants.TranslationStatus.READY_FOR_REVIEW;
+    		return TranslationConstants.TranslationStatus.READY_FOR_REVIEW;
         }
         
     	// TODO update state if approved
@@ -564,8 +548,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         return null;
     }
     
-    
-
     @Override
     public TranslationStatus[] updateTranslationObjectsState(String strTranslationJobID,
         TranslationObject[] translationObjects, TranslationState[] states) throws TranslationException {
@@ -602,14 +584,12 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     public void addTranslationObjectComment(String strTranslationJobID, TranslationObject translationObject,
         Comment comment) throws TranslationException {
         // not supported yet
-
     }
 
     @Override
     public void updateTranslationJobMetadata(String strTranslationJobID, TranslationMetadata jobMetadata,
         TranslationMethod translationMethod) throws TranslationException {
         // TODO ignore for now
-
     }
 
 	public CloudwordsCustomerClient getClient() {
@@ -630,8 +610,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		return client;
     }
 	
-	
-
 	private Project createBaseProject(String name, String strSourceLanguage,
 			String strTargetLanguage, String description, Date dueDate, CloudwordsCustomerClient client) throws CloudwordsClientException {
 		Project project = new Project();
@@ -640,9 +618,6 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	project.setSourceLanguage(new Language(getCwLanguageCode(strSourceLanguage)));
     	List<Language> targetLanguages = createListFromLanguage(getCwLanguageCode(strTargetLanguage));
     	project.setTargetLanguages(targetLanguages);
-    	
-    	
-    	
     	
 //    	client.requestBidsForProject(arg0, arg1, arg2, arg3)
     	int tmp = getIntFromNullableString(cloudwordsTranslationCloudConfig.getDefaultBidDeadline()); 
@@ -657,15 +632,12 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     		project.setDeliveryDueDate(dueDate);
     	}
     	
-    	
-    	
     	String desc = getFirst(description, cloudwordsTranslationCloudConfig.getDefaultProjectDescription());
     	if( desc != null) {
     		project.setDescription(desc);
     	}
     	
-    	
-        //The project content type identifies the originating system of the project in Cloudwords
+    	//The project content type identifies the originating system of the project in Cloudwords
         project.setProjectContentType("aem");    	
 		
 		Map<String, Boolean> uiFeatures = new HashMap<String, Boolean>();
@@ -695,8 +667,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		return null;
 	}
 	
-
-	private int getIntFromNullableString(String value) {
+    private int getIntFromNullableString(String value) {
 		if( value == null || value.trim().length() == 0) {
 			return -1;
 		}
@@ -773,9 +744,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 			return true;
 		}
 	}
-	
-	
-	
+		
 	// Translation Project status mapping between cloudwords and AEM
     private static HashMap<String, TranslationStatus> CODES = new HashMap<String, TranslationConstants.TranslationStatus>();
     {
@@ -1013,6 +982,5 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		}
 		zipInputStream.close();
 	}
-	
     
 }
