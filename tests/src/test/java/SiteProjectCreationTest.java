@@ -49,6 +49,7 @@ public class SiteProjectCreationTest {
 		System.out.println("isLocalTest: " + isLocalTest);
 				
 		driver = new FirefoxDriver();
+		//driver = new MarionetteDriver();
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
 
@@ -63,6 +64,44 @@ public class SiteProjectCreationTest {
         	SeleniumUtils.localLogin(driver, user, password);
         } 
         
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        
+        // open sites page, create translation project
+        driver.get(sitesUrl);
+        driver.findElement(By.xpath("//div[@id='granite-shell-content']/div[2]/div/div[2]/coral-columnview/coral-columnview-column/coral-columnview-column-content/coral-columnview-item[6]/coral-columnview-item-content")).click();
+        driver.findElement(By.xpath("//div[@id='granite-shell-content']/div[2]/div/div[2]/coral-columnview/coral-columnview-column[2]/coral-columnview-column-content/coral-columnview-item/coral-columnview-item-content")).click();
+        driver.findElement(By.xpath("//div[@id='granite-shell-content']/div[2]/div/div[2]/coral-columnview/coral-columnview-column[3]/coral-columnview-column-content/coral-columnview-item[2]/coral-columnview-item-content")).click();
+        driver.findElement(By.xpath("//div[@id='granite-shell-content']/div[2]/div/div[2]/coral-columnview/coral-columnview-column[4]/coral-columnview-column-content/coral-columnview-item/coral-columnview-item-content")).click();
+        driver.findElement(By.xpath("//div[@id='granite-shell-content']/div[2]/div/div[2]/coral-columnview/coral-columnview-column[5]/coral-columnview-column-content/coral-columnview-item/coral-columnview-item-content")).click();
+        driver.findElement(By.xpath("//div[@id='granite-shell-content']/div[2]/div/div[2]/coral-columnview/coral-columnview-column[5]/coral-columnview-column-content/coral-columnview-item/coral-columnview-item-thumbnail")).click();
+        
+        SeleniumUtils.threadSleep(shortPause);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='granite-shell-actionbar']/div[2]/div/coral-cyclebutton/button")));
+        driver.findElement(By.xpath("//div[@id='granite-shell-actionbar']/div[2]/div/coral-cyclebutton/button")).click();
+        
+        SeleniumUtils.threadSleep(shortPause);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("coral-id-0")));
+        driver.findElement(By.cssSelector("coral-selectlist-item.coral3-SelectList-item.is-highlighted")).click();
+        
+        SeleniumUtils.threadSleep(shortPause);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.linkText("Language Copies (1)")));
+        driver.findElement(By.linkText("Language Copies (1)")).click();
+        
+        SeleniumUtils.threadSleep(shortPause);
+        driver.findElement(By.xpath("//div[@id='coral-id-16']/coral-icon")).click();
+        driver.findElement(By.cssSelector("coral-select[name=\"languages\"] > button.coral-Button.coral-Button--block")).click();
+        
+        SeleniumUtils.threadSleep(shortPause);
+        driver.findElement(By.cssSelector("coral-selectlist-item.coral3-SelectList-item.is-highlighted")).click();
+        
+        SeleniumUtils.threadSleep(shortPause);
+        driver.findElement(By.id("coral-id-10")).click();
+        
+        driver.findElement(By.name("projectTitle")).clear();
+        driver.findElement(By.name("projectTitle")).sendKeys("selenium_test1");
+        driver.findElement(By.xpath("(//button[@type='button'])[11]")).click();
+        
+        // open projects page, start translation
         		
 		// assertion
 		//assertTrue("test", "test");
