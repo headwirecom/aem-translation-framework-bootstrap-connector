@@ -67,7 +67,7 @@
                         <islocaltest>true</islocaltest>
                         <loginurl>http://localhost:4502/libs/granite/core/content/login.html</loginurl>
                         <sitesurl>http://localhost:4502/sites.html/content</sitesurl>
-                        <projectsurl>http://localhost:4502/sites.html/content</projectsurl>
+                        <projectsurl>http://localhost:4502/projects.html/content</projectsurl>
                         <shortpause>2000</shortpause>
                         <mediumpause>5000</mediumpause>
                         <longpause>10000</longpause>
