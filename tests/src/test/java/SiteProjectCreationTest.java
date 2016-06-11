@@ -81,11 +81,12 @@ public class SiteProjectCreationTest {
         
         SeleniumUtils.threadSleep(shortPause);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("coral-id-0")));
-        driver.findElement(By.cssSelector("coral-selectlist-item.coral3-SelectList-item.is-highlighted")).click();
+        driver.findElement(By.cssSelector("#coral-id-0 coral-selectlist-item:nth-of-type(3)")).click();
         
         SeleniumUtils.threadSleep(shortPause);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.linkText("Language Copies (1)")));
-        driver.findElement(By.linkText("Language Copies (1)")).click();
+        //wait.until(ExpectedConditions.presenceOfElementLocated(By.linkText("Language Copies (1)")));
+        //driver.findElement(By.linkText("Language Copies (1)")).click();
+        driver.findElement(By.cssSelector(".reference-list .languageCopy .granite-references-title")).click();
         
         SeleniumUtils.threadSleep(shortPause);
         driver.findElement(By.xpath("//div[@id='coral-id-16']/coral-icon")).click();
