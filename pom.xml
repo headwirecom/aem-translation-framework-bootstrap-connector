@@ -12,7 +12,7 @@
 	<groupId>com.headwire.cloudwords</groupId>
 	<artifactId>cloudwordsapi</artifactId>
 	<packaging>pom</packaging>
-	<version>6.2.0</version>
+	<version>6.2.1-SNAPSHOT</version>
 	<description>cloudwords</description>
 
 	<modules>
