@@ -60,6 +60,17 @@ public class FileUtil {
 
 	}
 	
+	public static String getSystemTempFolder() {
+		String tempFolder = System.getProperty("java.io.tmpdir"); 
+        // make sure there is a trailing slash. Windows usually has one, linux/osx typically does not
+        //log.info("System temp folder is: '{}'",tempFolder);
+        if(!tempFolder.endsWith("/")) {
+        	// add trailing slash
+        	return tempFolder + "/";
+        }
+        return tempFolder;
+	}
+	
 	
 
 }

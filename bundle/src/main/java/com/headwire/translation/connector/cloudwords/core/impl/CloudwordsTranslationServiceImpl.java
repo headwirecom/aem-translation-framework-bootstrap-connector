@@ -41,16 +41,15 @@ import com.adobe.granite.translation.api.TranslationService;
 import com.adobe.granite.translation.api.TranslationState;
 import com.adobe.granite.translation.core.common.AbstractTranslationService;
 import com.adobe.granite.translation.core.common.TranslationResultImpl;
-
 import com.cloudwords.api.client.CloudwordsCustomerClient;
 import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.CloudwordsFile;
+import com.cloudwords.api.client.resources.Department;
 import com.cloudwords.api.client.resources.IntendedUse;
 import com.cloudwords.api.client.resources.Language;
 import com.cloudwords.api.client.resources.Project;
 import com.cloudwords.api.client.resources.SourceDocument;
 import com.cloudwords.api.client.resources.TranslatedDocument;
-
 import com.headwire.translation.connector.cloudwords.core.CloudwordsAware;
 import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationCloudConfig;
 import com.headwire.xliff.util.FileUtil;
@@ -635,6 +634,29 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	String desc = getFirst(description, cloudwordsTranslationCloudConfig.getDefaultProjectDescription());
     	if( desc != null) {
     		project.setDescription(desc);
+    	}
+    	
+    	//TODO allow configuration for departments
+    	// For now, choose either "marketing" or first department
+    	Department dep = null;
+    	List<Department> departments = client.getDepartments();
+    	if(departments != null) {
+    		for(Department d : departments) {
+    			if(dep == null) {
+    				// set dep as first department
+    				dep = d;
+    			}
+    			else {
+    				// for later ones, only set if its "Marketing"
+    				if(d.getName().equals("Marketing")) {
+    					dep = d;
+    				}
+    			}
+    		}
+    	}
+    	// set department if its not null
+    	if(dep != null) {
+    		project.setDepartment(dep);
     	}
     	
     	//The project content type identifies the originating system of the project in Cloudwords

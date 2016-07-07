@@ -131,7 +131,7 @@ public class XliffExporter {
 		File tempFile = null;
 		try {
 			//tempFile = File.createTempFile(xliffName, ".xlf");
-			tempFile = new File(System.getProperty("java.io.tmpdir") + xliffName + ".xlf");
+			tempFile = new File(FileUtil.getSystemTempFolder() + xliffName + ".xlf");
 			fakeFile = tempFile.getAbsolutePath();
 			LOG.debug("fakefile:" + fakeFile);
 		} catch(Exception e) {
