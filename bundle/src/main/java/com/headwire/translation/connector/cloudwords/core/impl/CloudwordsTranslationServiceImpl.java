@@ -393,7 +393,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         throws TranslationException {
     	
     	// need to determine if it's a content that we need to convert from the adobe format to xliff or not, then upload it
-        String tempFolder = System.getProperty("java.io.tmpdir"); 
+        String tempFolder = FileUtil.getSystemTempFolder(); 
         InputStream is = null;
         if(exportFormat.equalsIgnoreCase(CloudwordsConstants.EXPORT_FORMAT_XML)){
         	is = translationObject.getTranslationObjectXMLInputStream();
@@ -414,7 +414,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     		if(isBinaryObject(translationObject)){
     			String srcPath = translationObject.getTranslationObjectSourcePath();
     			String imgName = toCWFileName(srcPath);
-    			File imgFile = new File(tempFolder + imgName);
+    			File imgFile = new File(tempFolder,imgName);
     			copyInputStreamToFile(is, imgFile);
     			SourceDocument source = getClient().addSourceDocument(getIntFromNullableString(strTranslationJobID), imgFile);
     			FileUtil.deleteTempFile(imgFile);

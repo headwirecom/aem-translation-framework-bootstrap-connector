@@ -21,10 +21,8 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
-
 import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +32,12 @@ import com.cloudwords.api.client.exception.CloudwordsClientException;
 import com.cloudwords.api.client.resources.Language;
 import com.cloudwords.api.client.resources.SourceDocument;
 import com.cloudwords.api.client.resources.TranslatedDocument;
-
 import com.headwire.pageUploader.services.PageUploader;
 import com.headwire.pageUploader.services.PageUtil;
 import com.headwire.pageUploader.services.ServersideRequestUtil;
 import com.headwire.pageUploader.services.ZipDirectoryUtil;
 import com.headwire.translation.connector.cloudwords.core.impl.CloudwordsConstants;
+import com.headwire.xliff.util.FileUtil;
 
 
 @org.apache.felix.scr.annotations.Component(metatype = true, label = "PageUploader Implementation", description = "Implements the PageUploader service")
@@ -55,7 +53,7 @@ public class PageUploaderImpl
 	private static final Logger LOG = LoggerFactory.getLogger(PageUploaderImpl.class);
 	
 	/** The temp folder. */
-	private static String tempFolder = System.getProperty("java.io.tmpdir");
+	private static String tempFolder = FileUtil.getSystemTempFolder();
 	
 	@Reference(policy=ReferencePolicy.STATIC)
 	protected ResourceResolverFactory resourceResolverFactory;
@@ -84,21 +82,21 @@ public class PageUploaderImpl
     		PageUtil.savePage(rr, resourceResolverFactory, htmlString, pageName, pageFolderName, tempFolder, serverUrl);
         
     		// Step 2: Zip the entire folder
-    		String folderPath = tempFolder + "/" + pageFolderName.replaceAll("/", "_");
-    		//String folderPath = tempFolder + pageFolderName.replaceAll("/", "_");
-    		File fileToZip = new File(folderPath);
-    		File zipFile = new File(folderPath + ".zip");
+    		String zipName = pageFolderName.replaceAll("/", "_");
+    		File folderFile = new File(tempFolder,zipName);
+    		File zipFile = new File(tempFolder,zipName + ".zip");
     		try {
-				ZipDirectoryUtil.zipFile(folderPath, folderPath + ".zip", true);
+				ZipDirectoryUtil.zipFile(folderFile.getAbsolutePath(), zipFile.getAbsolutePath(), true);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOG.error("Caught exception creating page upload zip file at "+zipFile.getAbsolutePath(),e);
+				//e.printStackTrace();
 			}
     		
     		// Step 3: Todo: Upload Zip file to cloudwords site
     		uploadZip(zipFile, projectId, targetLanguageCode, translationDataEntry, customerClient);
             
     		// Step 4: Delete downloaded file and zip file from temp folder
-    		ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
+    		ZipDirectoryUtil.deleteTempFiles(folderFile, zipFile);
     		
     	}
 		
@@ -126,21 +124,20 @@ public class PageUploaderImpl
     		PageUtil.savePage(rr, resourceResolverFactory, htmlString, pageName, pageFolderName, tempFolder, serverUrl);
         
     		// Step 2: Zip the entire folder
-    		String folderPath = tempFolder + "/" + pageFolderName.replaceAll("/", "_");
-    		//String folderPath = tempFolder + pageFolderName.replaceAll("/", "_");
-    		File fileToZip = new File(folderPath);
-    		File zipFile = new File(folderPath + ".zip");
+    		String zipName = pageFolderName.replaceAll("/", "_");
+    		File folderFile = new File(tempFolder,zipName);
+    		File zipFile = new File(tempFolder,zipName + ".zip");
     		try {
-				ZipDirectoryUtil.zipFile(folderPath, folderPath + ".zip", true);
+				ZipDirectoryUtil.zipFile(folderFile.getAbsolutePath(), zipFile.getAbsolutePath(), true);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOG.error("Caught exception creating source page upload zip file at "+zipFile.getAbsolutePath(),e);
 			}
     		
     		// Step 3: Todo: Upload Zip file to cloudwords site
     		uploadSourceZip(zipFile, projectId, translationDataEntry, customerClient);
             
     		// Step 4: Delete downloaded file and zip file from temp folder
-    		ZipDirectoryUtil.deleteTempFiles(fileToZip, zipFile);
+    		ZipDirectoryUtil.deleteTempFiles(folderFile, zipFile);
     		
     	}
 		
