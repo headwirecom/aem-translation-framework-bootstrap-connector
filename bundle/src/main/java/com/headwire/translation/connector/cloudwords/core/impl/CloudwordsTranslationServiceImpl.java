@@ -646,13 +646,15 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     	List<Department> departments = client.getDepartments();
     	if(departments != null) {
     		for(Department d : departments) {
-    			if(dep == null) {
+    			//if(dep == null) {
+    			if(cloudwordsDepartment == null || cloudwordsDepartment.equals("")){
     				// set dep as first department
     				dep = d;
     			}
     			else {
     				// for later ones, only set if its "Marketing"
-    				if(d.getName().equals("Marketing")) {
+    				//if(d.getName().equals("Marketing")) {
+    				if(d.getName().equalsIgnoreCase(cloudwordsDepartment)) {
     					dep = d;
     				}
     			}
