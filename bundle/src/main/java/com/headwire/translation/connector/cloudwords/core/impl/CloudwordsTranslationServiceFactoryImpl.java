@@ -51,7 +51,8 @@ import com.headwire.translation.connector.cloudwords.core.CloudwordsTranslationC
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XML, value = "XML"),
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XLIFF_1_2, value = "XLIFF 1.2"),
 	    		@PropertyOption(name = CloudwordsConstants.EXPORT_FORMAT_XLIFF_2_0, value = "XLIFF 2.0")
-	    })
+	    }),
+	    @Property(name = CloudwordsConstants.CLOUDWORDS_DEPARTMENT, value = "", label = "Cloudwords Department Name", description = "Please specify the cloudwords department"),
 	})
 public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslationServiceFactory implements
     TranslationServiceFactory {
@@ -61,6 +62,8 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
 	protected String previewFormat;
     
     protected String exportFormat;
+    
+    protected String cloudwordsDepartment;
     
     protected ResourceResolver rr;
 
@@ -118,7 +121,7 @@ public class CloudwordsTranslationServiceFactoryImpl extends AbstractTranslation
         	closeResourceResolver(rr);
         	getResourceResolver(resourceResolverFactory);
         }
-        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, previewFormat,exportFormat, cloudConfigPath, cloudwordsCloudConfg, translationConfig,  pageUploaderImpl, rr);
+        return new CloudwordsTranslationServiceImpl(null, null, factoryName, strServiceLabel, strServiceAttribute, previewPath, isPreviewEnabled, previewFormat,exportFormat, cloudwordsDepartment,cloudConfigPath, cloudwordsCloudConfg, translationConfig,  pageUploaderImpl, rr);
     }
 
     @Override

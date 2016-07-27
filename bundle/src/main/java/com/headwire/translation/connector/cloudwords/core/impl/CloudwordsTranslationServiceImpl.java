@@ -81,6 +81,8 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     
     private String exportFormat = CloudwordsConstants.EXPORT_FORMAT_XML;
     
+    private String cloudwordsDepartment = CloudwordsConstants.CLOUDWORDS_DEPARTMENT;
+    
     private String previewPath = "";
     
     private Boolean isPreviewEnabled = false;
@@ -91,7 +93,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
     public CloudwordsTranslationServiceImpl(
 			Map<String, String> availableLanguageMap,
 			Map<String, String> availableCategoryMap, String name,
-			String label, String attribution, String previewPath, Boolean isPreviewEnabled, String previewFormat,String exportFormat,
+			String label, String attribution, String previewPath, Boolean isPreviewEnabled, String previewFormat,String exportFormat,String cloudwordsDepartment,
 			String translationCloudConfigRootPath,
 			CloudwordsTranslationCloudConfig cwtc, 
 			TranslationConfig translationConfig,
@@ -123,6 +125,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
         this.isPreviewEnabled = isPreviewEnabled;
         this.previewFormat = previewFormat;
         this.exportFormat = exportFormat;
+        this.cloudwordsDepartment = cloudwordsDepartment;
         this.rr = resourceResolver;
     }
 
@@ -470,6 +473,7 @@ public class CloudwordsTranslationServiceImpl extends AbstractTranslationService
 		    	// LQ: now upload a page preview package to cloudwords
 		    	if(isPreviewEnabled && (!translationObject.getTitle().equals("ASSETMETADATA")) && (!translationObject.getTitle().equals("TAGMETADATA"))) {
 		    		if(previewFormat.equals(CloudwordsConstants.PREVIEW_FORMAT_HEADWIRE)){
+		    			log.error("LQ== upload preview package");
 		    			pageUploaderImpl.uploadSourcePage(rr, getIntFromNullableString(strTranslationJobID), pageName, pagePath + ".html", getClient());
 		    		}
 		    		else if(previewFormat.equals(CloudwordsConstants.PREVIEW_FORMAT_ADOBE)){
