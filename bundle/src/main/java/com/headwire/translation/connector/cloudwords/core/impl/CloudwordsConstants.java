@@ -35,4 +35,7 @@ public class CloudwordsConstants {
 	/** The Constant CLOUD_CONFIG_PATH. */
 	public static final String CLOUD_CONFIG_PATH = "cloudConfigPath";
 	
+	/** The Constant CLOUDWORDS_DEPARTMENT. */
+	public static final String CLOUDWORDS_DEPARTMENT = "cloudwordsDepartment";
+	
 }
